@@ -1,147 +1,111 @@
 # SunDate Café API Documentation
 
-A comprehensive, interactive documentation site for the SunDate Café Restaurant Management System API.
+This is the interactive documentation for the SunDate Café API, built with Next.js and featuring a comprehensive testing interface.
 
 ## Features
 
-- **Interactive API Documentation**: Detailed endpoint documentation with examples
-- **Modern UI**: Beautiful, responsive design with dark mode support
-- **Comprehensive Coverage**: Covers all API endpoints (Reservations, Menu, Contact)
-- **Code Examples**: Request/response examples for each endpoint
-- **Authentication Guide**: Complete authentication documentation
-- **Error Handling**: Detailed error codes and response formats
-- **Mobile Responsive**: Works perfectly on all device sizes
-
-## Tech Stack
-
-- **Framework**: Next.js 15 with App Router
-- **Styling**: Tailwind CSS with custom design system
-- **Icons**: Lucide React for beautiful, consistent icons
-- **TypeScript**: Full type safety and IntelliSense support
-- **Monorepo**: Part of the SunDate ecosystem
+- **Interactive API Documentation**: Complete endpoint documentation with examples
+- **API Testing Interface**: Test endpoints directly from the documentation
+- **Real-time Response Display**: See API responses in real-time
+- **Parameter Forms**: Dynamic forms for different endpoint types
+- **Responsive Design**: Works on desktop and mobile devices
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ 
-- pnpm (recommended) or npm
+- pnpm package manager
+- SunDate Café API server running
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/sundate-cafe/sundate-ecosystem.git
-cd sundate-ecosystem
-```
+1. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
 
-2. Install dependencies:
-```bash
-pnpm install
-```
+2. **Start the development server:**
+   ```bash
+   pnpm dev
+   ```
 
-3. Start the development server:
-```bash
-cd apps/docs
-pnpm dev
-```
+3. **Open your browser:**
+   Navigate to [http://localhost:3001](http://localhost:3001)
 
-4. Open [http://localhost:3001](http://localhost:3001) in your browser
+## API Testing
 
-### Building for Production
+The documentation includes an interactive API testing section that allows you to:
 
-```bash
-pnpm build
-pnpm start
-```
+- **Configure API Base URL**: Set the URL where your API server is running
+- **Select Endpoints**: Choose from available API endpoints
+- **Input Parameters**: Fill out forms for query parameters and request bodies
+- **Execute Requests**: Send requests and see responses in real-time
+- **View Responses**: See formatted JSON responses and error messages
 
-## Project Structure
+### Supported Endpoints
+
+- **Reservations**: GET all, POST create, GET availability check
+- **Menu**: GET items, GET categories, filtering and search
+- **Contact**: POST submit form
+- **Health**: GET status check
+
+### Testing Setup
+
+1. **Start your API server** (default: http://localhost:5001)
+2. **Navigate to the "API Testing" section** in the documentation
+3. **Update the API Base URL** if your server runs on a different port
+4. **Select an endpoint** from the dropdown
+5. **Fill out the required parameters** (if any)
+6. **Click "Execute Request"** to test the endpoint
+
+## Development
+
+### Project Structure
 
 ```
 apps/docs/
-├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout with metadata
-│   ├── page.tsx           # Main documentation page
-│   └── globals.css        # Global styles and Tailwind imports
-├── lib/                    # Utility functions
-│   └── utils.ts           # Class name utilities
-├── public/                 # Static assets
-├── tailwind.config.js     # Tailwind CSS configuration
-├── postcss.config.js      # PostCSS configuration
-└── package.json           # Dependencies and scripts
+├── app/                 # Next.js app directory
+│   ├── page.tsx        # Main documentation page
+│   ├── layout.tsx      # Root layout
+│   └── globals.css     # Global styles
+├── lib/                 # Utility functions
+└── package.json         # Dependencies
 ```
-
-## API Endpoints Documented
-
-### Reservations API
-- `GET /api/reservations` - Get all reservations
-- `POST /api/reservations` - Create new reservation
-- `GET /api/reservations/availability/check` - Check availability
-- `PUT /api/reservations/:id` - Update reservation
-- `PATCH /api/reservations/:id/confirm` - Confirm reservation
-- `PATCH /api/reservations/:id/cancel` - Cancel reservation
-- `DELETE /api/reservations/:id` - Delete reservation
-
-### Menu API
-- `GET /api/menu` - Get menu items with filtering
-- `GET /api/menu/categories` - Get all categories
-- `GET /api/menu/featured` - Get featured items
-- `GET /api/menu/category/:category` - Get items by category
-- `GET /api/menu/search` - Search menu items
-- `GET /api/menu/dietary/:dietary` - Get items by dietary restrictions
-- `GET /api/menu/:id` - Get specific menu item
-- `POST /api/menu` - Create menu item (admin)
-- `PUT /api/menu/:id` - Update menu item (admin)
-- `DELETE /api/menu/:id` - Delete menu item (admin)
-
-### Contact API
-- `POST /api/contact` - Submit contact form
-- `GET /api/contact` - Get all contacts (admin)
-- `GET /api/contact/stats` - Get contact statistics (admin)
-- `GET /api/contact/urgent` - Get urgent contacts (admin)
-- `GET /api/contact/:id` - Get specific contact (admin)
-- `PUT /api/contact/:id` - Update contact (admin)
-- `DELETE /api/contact/:id` - Delete contact (admin)
-
-## Customization
 
 ### Adding New Endpoints
 
-1. Update the main page component (`app/page.tsx`)
-2. Add new endpoint cards using the `EndpointCard` component
-3. Include proper method, path, description, parameters, and response examples
+To add new endpoints to the testing interface:
+
+1. **Update the `endpoints` array** in `page.tsx`
+2. **Add parameter forms** for the new endpoint
+3. **Handle the response** in the `handleApiCall` function
 
 ### Styling
 
-- Modify `app/globals.css` for custom CSS
-- Update `tailwind.config.js` for theme customization
-- Use the existing design system classes for consistency
+The documentation uses Tailwind CSS with custom components:
+- Method badges (GET, POST, PUT, DELETE)
+- Form inputs and buttons
+- Response display areas
+- Dark mode support
 
-### Content
+## API Server Requirements
 
-- All content is in the main page component
-- Easy to modify text, examples, and documentation
-- Structured for maintainability and readability
+Make sure your API server supports:
+
+- **CORS**: Allow requests from the documentation origin
+- **JSON**: Accept and return JSON data
+- **Validation**: Proper input validation and error responses
+- **Health Check**: `/api/health` endpoint for status checking
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Test the documentation locally
 5. Submit a pull request
 
 ## License
 
-This project is part of the SunDate Café ecosystem and is proprietary software.
-
-## Support
-
-For questions or support:
-- Email: dev@sundate-cafe.com
-- Documentation: https://docs.sundate-cafe.com
-- Support: https://support.sundate-cafe.com
-
----
-
-Built with ❤️ by the SunDate Café Development Team
+MIT License - see LICENSE file for details
