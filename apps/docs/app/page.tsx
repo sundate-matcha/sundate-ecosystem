@@ -1,41 +1,44 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  BookOpen, 
-  Code, 
-  MessageSquare, 
-  Calendar, 
+import {
+  BookOpen,
+  Code,
+  MessageSquare,
+  Calendar,
   UtensilsCrossed,
   Zap,
   Shield,
   Github,
   ExternalLink,
   Play,
-  Settings
+  Settings,
+  Menu,
+  X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState('overview')
   const [expandedFeatures, setExpandedFeatures] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const sections = [
     { id: 'overview', label: 'Overview', icon: BookOpen, level: 0 },
-    { 
-      id: 'features', 
-      label: 'Features', 
-      icon: Settings, 
+    {
+      id: 'features',
+      label: 'Features',
+      icon: Settings,
       level: 0,
       children: [
         { id: 'reservations', label: 'Reservations', icon: Calendar },
         { id: 'menu', label: 'Menu', icon: UtensilsCrossed },
         { id: 'contact', label: 'Contact', icon: MessageSquare },
-        { id: 'authentication', label: 'Authentication', icon: Shield },
+        { id: 'authentication', label: 'Authentication', icon: Shield }
       ]
     },
     { id: 'testing', label: 'API Testing', icon: Play, level: 0 },
-    { id: 'errors', label: 'Error Handling', icon: Zap, level: 0 },
+    { id: 'errors', label: 'Error Handling', icon: Zap, level: 0 }
   ]
 
   const handleSectionClick = (sectionId: string) => {
@@ -47,24 +50,27 @@ export default function HomePage() {
       if (['reservations', 'menu', 'contact', 'authentication'].includes(sectionId)) {
         setExpandedFeatures(true)
       }
+      // Close mobile navigation when a section is selected
+      setMobileNavOpen(false)
     }
   }
 
   const renderNavigationItem = (section: any, isChild = false) => {
     const Icon = section.icon
     const isActive = activeSection === section.id
-    const isFeaturesExpanded = expandedFeatures || ['reservations', 'menu', 'contact', 'authentication'].includes(activeSection)
-    
+    const isFeaturesExpanded =
+      expandedFeatures || ['reservations', 'menu', 'contact', 'authentication'].includes(activeSection)
+
     if (section.children) {
       return (
         <div key={section.id}>
           <button
             onClick={() => handleSectionClick(section.id)}
             className={cn(
-              "w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-all text-md",
+              'w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-all text-md',
               isActive
-                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500"
-                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-l-4 border-blue-500'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
             )}
           >
             <div className="flex items-center space-x-3">
@@ -72,10 +78,7 @@ export default function HomePage() {
               <span className="font-medium">{section.label}</span>
             </div>
             <svg
-              className={cn(
-                "w-4 h-4 transition-transform",
-                isFeaturesExpanded ? "rotate-180" : ""
-              )}
+              className={cn('w-4 h-4 transition-transform', isFeaturesExpanded ? 'rotate-180' : '')}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -83,7 +86,7 @@ export default function HomePage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          
+
           {isFeaturesExpanded && (
             <div className="ml-4 mt-2 space-y-1 border-l border-gray-200 dark:border-gray-700 pl-2">
               {section.children.map((child: any) => renderNavigationItem(child, true))}
@@ -96,12 +99,15 @@ export default function HomePage() {
     return (
       <button
         key={section.id}
-        onClick={() => setActiveSection(section.id)}
+        onClick={() => {
+          setActiveSection(section.id)
+          setMobileNavOpen(false)
+        }}
         className={cn(
-          "w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all text-md",
+          'w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all text-md',
           isActive
-            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-l-2 border-blue-500"
-            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-l-2 border-blue-500'
+            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
         )}
       >
         <Icon className="w-5 h-5" />
@@ -121,12 +127,8 @@ export default function HomePage() {
                 <Code className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  SunDate Café API
-                </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Restaurant Management System
-                </p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Sundate Matcha API</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Restaurant Management System</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -144,18 +146,58 @@ export default function HomePage() {
                 <ExternalLink className="w-5 h-5" />
                 <span className="hidden sm:inline">API Status</span>
               </a>
+
+              {/* Mobile Navigation Toggle */}
+              <button
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="lg:hidden p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                {/* {mobileNavOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )} */}
+                <Menu className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Mobile Navigation Overlay */}
+      {mobileNavOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity duration-300"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+
+      {/* Mobile Navigation Sidebar */}
+      <div
+        className={cn(
+          'lg:hidden fixed inset-y-0 left-0 z-50 w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out shadow-2xl',
+          mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Navigation</h2>
+          <button
+            onClick={() => setMobileNavOpen(false)}
+            className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <nav className="p-4 space-y-2 max-h-[calc(100vh-80px)] overflow-y-auto">
+          {sections.map(section => renderNavigationItem(section))}
+        </nav>
+      </div>
+
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <aside className="lg:col-span-1">
-            <nav className="sticky top-24 space-y-2">
-              {sections.map((section) => renderNavigationItem(section))}
-            </nav>
+          {/* Desktop Sidebar Navigation */}
+          <aside className="hidden lg:block lg:col-span-1">
+            <nav className="sticky top-24 space-y-2">{sections.map(section => renderNavigationItem(section))}</nav>
           </aside>
 
           {/* Main Content */}
@@ -178,9 +220,7 @@ function OverviewSection() {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-          Welcome to SunDate Café API
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Welcome to Sundate Matcha API</h1>
         <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
           A comprehensive REST API for managing restaurant reservations, menu items, and customer communications.
         </p>
@@ -191,9 +231,7 @@ function OverviewSection() {
           <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4">
             <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            Reservations
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Reservations</h3>
           <p className="text-gray-600 dark:text-gray-400">
             Manage table reservations with availability checking, time slots, and guest management.
           </p>
@@ -203,9 +241,7 @@ function OverviewSection() {
           <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
             <UtensilsCrossed className="w-6 h-6 text-green-600 dark:text-green-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            Menu Management
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Menu Management</h3>
           <p className="text-gray-600 dark:text-gray-400">
             Handle menu items, categories, dietary options, and nutritional information.
           </p>
@@ -215,9 +251,7 @@ function OverviewSection() {
           <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mb-4">
             <MessageSquare className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            Customer Contact
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Customer Contact</h3>
           <p className="text-gray-600 dark:text-gray-400">
             Process customer inquiries, feedback, and support requests efficiently.
           </p>
@@ -225,9 +259,7 @@ function OverviewSection() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          Quick Start
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Quick Start</h2>
         <div className="space-y-4">
           <div className="flex items-start space-x-3">
             <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mt-1">
@@ -287,9 +319,7 @@ function ReservationsSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Reservations API
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Reservations API</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Manage table reservations, check availability, and handle guest requests.
         </p>
@@ -329,7 +359,12 @@ function ReservationsSection() {
             { name: 'time', type: 'string', required: true, description: 'Time slot (6:00 PM - 9:00 PM)' },
             { name: 'guests', type: 'number', required: true, description: 'Number of guests (1-20)' },
             { name: 'phone', type: 'string', required: false, description: 'Phone number' },
-            { name: 'specialRequests', type: 'string', required: false, description: 'Special requests (max 500 chars)' }
+            {
+              name: 'specialRequests',
+              type: 'string',
+              required: false,
+              description: 'Special requests (max 500 chars)'
+            }
           ]}
           responseExample={`{
   "message": "Reservation created successfully",
@@ -366,9 +401,7 @@ function MenuSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Menu API
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Menu API</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Manage menu items, categories, and dietary information.
         </p>
@@ -440,9 +473,7 @@ function ContactSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Contact API
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Contact API</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Handle customer inquiries, feedback, and support requests.
         </p>
@@ -497,22 +528,18 @@ function AuthenticationSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Authentication
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Authentication</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Learn how to authenticate your API requests and manage access.
         </p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          API Key Authentication
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">API Key Authentication</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           Most endpoints require authentication using an API key. Include your key in the Authorization header.
         </p>
-        
+
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Header Format</h3>
@@ -520,11 +547,11 @@ function AuthenticationSection() {
               Authorization: Bearer YOUR_API_KEY_HERE
             </code>
           </div>
-          
+
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Example Request</h3>
             <pre className="text-sm bg-gray-100 dark:bg-gray-700 p-4 rounded overflow-x-auto">
-{`curl -X GET "https://api.sundate-cafe.com/api/reservations" \\
+              {`curl -X GET "https://api.sundate-cafe.com/api/reservations" \\
   -H "Authorization: Bearer YOUR_API_KEY_HERE" \\
   -H "Content-Type: application/json"`}
             </pre>
@@ -533,9 +560,7 @@ function AuthenticationSection() {
       </div>
 
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-6 rounded-xl">
-        <h2 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200 mb-4">
-          🔐 Getting Your API Key
-        </h2>
+        <h2 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200 mb-4">🔐 Getting Your API Key</h2>
         <p className="text-yellow-700 dark:text-yellow-300 mb-4">
           To obtain an API key, please contact our development team or visit the developer portal.
         </p>
@@ -553,9 +578,7 @@ function ErrorHandlingSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Error Handling
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Error Handling</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Understand how the API handles errors and how to respond to them in your applications.
         </p>
@@ -563,9 +586,7 @@ function ErrorHandlingSection() {
 
       <div className="space-y-6">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            HTTP Status Codes
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">HTTP Status Codes</h2>
           <div className="space-y-3">
             <div className="flex items-center space-x-3">
               <span className="w-16 text-sm font-mono text-green-600 dark:text-green-400">200</span>
@@ -595,14 +616,10 @@ function ErrorHandlingSection() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Error Response Format
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            All error responses follow a consistent format:
-          </p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Error Response Format</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">All error responses follow a consistent format:</p>
           <pre className="text-sm bg-gray-100 dark:bg-gray-700 p-4 rounded overflow-x-auto">
-{`{
+            {`{
   "error": "Error type description",
   "message": "Detailed error message",
   "details": [
@@ -616,9 +633,7 @@ function ErrorHandlingSection() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Common Error Scenarios
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Common Error Scenarios</h2>
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Validation Errors (400)</h3>
@@ -722,14 +737,14 @@ function APITestingSection() {
 
   const handleApiCall = async () => {
     if (!selectedEndpointData) return
-    
+
     setLoading(true)
     setError('')
     setResponse('')
 
     try {
       const url = new URL(selectedEndpointData.path, apiBaseUrl)
-      
+
       // Add query parameters if they exist
       if (selectedEndpointData.hasParams) {
         const params = new FormData(document.getElementById('params-form') as HTMLFormElement)
@@ -741,7 +756,7 @@ function APITestingSection() {
       const options: RequestInit = {
         method: selectedEndpointData.method,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         }
       }
 
@@ -769,9 +784,7 @@ function APITestingSection() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          API Testing
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">API Testing</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Test the API endpoints directly from this documentation. Make sure your API server is running.
         </p>
@@ -779,32 +792,26 @@ function APITestingSection() {
 
       {/* API Configuration */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          API Configuration
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">API Configuration</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              API Base URL
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">API Base URL</label>
             <input
               type="text"
               value={apiBaseUrl}
-              onChange={(e) => setApiBaseUrl(e.target.value)}
+              onChange={e => setApiBaseUrl(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="http://localhost:5001"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Select Endpoint
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Endpoint</label>
             <select
               value={selectedEndpoint}
-              onChange={(e) => setSelectedEndpoint(e.target.value)}
+              onChange={e => setSelectedEndpoint(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              {endpoints.map((endpoint) => (
+              {endpoints.map(endpoint => (
                 <option key={endpoint.id} value={endpoint.id}>
                   {endpoint.method} {endpoint.path} - {endpoint.title}
                 </option>
@@ -818,43 +825,57 @@ function APITestingSection() {
       {selectedEndpointData && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 mb-4">
-            <span className={cn("method", selectedEndpointData.method.toLowerCase())}>
+            <span className={cn('method', selectedEndpointData.method.toLowerCase())}>
               {selectedEndpointData.method}
             </span>
             <code className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded">
               {selectedEndpointData.path}
             </code>
           </div>
-          
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            {selectedEndpointData.title}
-          </h3>
-          
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {selectedEndpointData.description}
-          </p>
+
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{selectedEndpointData.title}</h3>
+
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{selectedEndpointData.description}</p>
 
           {/* Query Parameters Form */}
           {selectedEndpointData.hasParams && (
             <div className="mb-6">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Query Parameters</h4>
               <form id="params-form" className="space-y-3">
-                                 {selectedEndpoint === 'reservations-get' && (
+                {selectedEndpoint === 'reservations-get' && (
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Page</label>
-                        <input type="number" name="page" defaultValue="1" min="1" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <input
+                          type="number"
+                          name="page"
+                          defaultValue="1"
+                          min="1"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Limit</label>
-                        <input type="number" name="limit" defaultValue="10" min="1" max="100" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <input
+                          type="number"
+                          name="limit"
+                          defaultValue="10"
+                          min="1"
+                          max="100"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                        <select name="status" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Status
+                        </label>
+                        <select
+                          name="status"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
                           <option value="">All</option>
                           <option value="pending">Pending</option>
                           <option value="confirmed">Confirmed</option>
@@ -863,8 +884,13 @@ function APITestingSection() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort By</label>
-                        <select name="sortBy" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Sort By
+                        </label>
+                        <select
+                          name="sortBy"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
                           <option value="date">Date</option>
                           <option value="name">Name</option>
                           <option value="guests">Guests</option>
@@ -873,23 +899,37 @@ function APITestingSection() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort Order</label>
-                      <select name="sortOrder" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Sort Order
+                      </label>
+                      <select
+                        name="sortOrder"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
                         <option value="asc">Ascending</option>
                         <option value="desc">Descending</option>
                       </select>
                     </div>
                   </>
                 )}
-                                 {selectedEndpoint === 'reservations-availability' && (
+                {selectedEndpoint === 'reservations-availability' && (
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                      <input type="date" name="date" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                      <input
+                        type="date"
+                        name="date"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
-                      <select name="time" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                      <select
+                        name="time"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
                         <option value="6:00 PM">6:00 PM</option>
                         <option value="6:30 PM">6:30 PM</option>
                         <option value="7:00 PM">7:00 PM</option>
@@ -901,15 +941,28 @@ function APITestingSection() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Guests</label>
-                      <input type="number" name="guests" defaultValue="2" min="1" max="20" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                      <input
+                        type="number"
+                        name="guests"
+                        defaultValue="2"
+                        min="1"
+                        max="20"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
                   </div>
                 )}
-                                 {selectedEndpoint === 'menu-get' && (
+                {selectedEndpoint === 'menu-get' && (
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                      <select name="category" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Category
+                      </label>
+                      <select
+                        name="category"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
                         <option value="">All Categories</option>
                         <option value="Breakfast">Breakfast</option>
                         <option value="Lunch">Lunch</option>
@@ -921,15 +974,34 @@ function APITestingSection() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
-                      <input type="text" name="search" placeholder="Search menu items..." className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                      <input
+                        type="text"
+                        name="search"
+                        placeholder="Search menu items..."
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Price</label>
-                      <input type="number" name="maxPrice" step="0.01" min="0" placeholder="50.00" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Max Price
+                      </label>
+                      <input
+                        type="number"
+                        name="maxPrice"
+                        step="0.01"
+                        min="0"
+                        placeholder="50.00"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Featured Only</label>
-                      <select name="isFeatured" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Featured Only
+                      </label>
+                      <select
+                        name="isFeatured"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
                         <option value="">All Items</option>
                         <option value="true">Featured Only</option>
                         <option value="false">Not Featured</option>
@@ -946,26 +1018,55 @@ function APITestingSection() {
             <div className="mb-6">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Request Body</h4>
               <form id="body-form" className="space-y-3">
-                                 {selectedEndpoint === 'reservations-create' && (
+                {selectedEndpoint === 'reservations-create' && (
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
-                        <input type="text" name="name" required placeholder="John Doe" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          required
+                          placeholder="John Doe"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email *</label>
-                        <input type="email" name="email" required placeholder="john@example.com" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Email *
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          placeholder="john@example.com"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date *</label>
-                        <input type="date" name="date" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Date *
+                        </label>
+                        <input
+                          type="date"
+                          name="date"
+                          required
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time *</label>
-                        <select name="time" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Time *
+                        </label>
+                        <select
+                          name="time"
+                          required
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
                           <option value="6:00 PM">6:00 PM</option>
                           <option value="6:30 PM">6:30 PM</option>
                           <option value="7:00 PM">7:00 PM</option>
@@ -978,44 +1079,103 @@ function APITestingSection() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Guests *</label>
-                        <input type="number" name="guests" defaultValue="2" min="1" max="20" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Guests *
+                        </label>
+                        <input
+                          type="number"
+                          name="guests"
+                          defaultValue="2"
+                          min="1"
+                          max="20"
+                          required
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
-                        <input type="tel" name="phone" placeholder="+1234567890" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <input
+                          type="tel"
+                          name="phone"
+                          placeholder="+1234567890"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Special Requests</label>
-                      <textarea name="specialRequests" rows={3} placeholder="Any special requests or dietary restrictions..." className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Special Requests
+                      </label>
+                      <textarea
+                        name="specialRequests"
+                        rows={3}
+                        placeholder="Any special requests or dietary restrictions..."
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
                   </>
                 )}
-                                 {selectedEndpoint === 'contact-create' && (
+                {selectedEndpoint === 'contact-create' && (
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
-                        <input type="text" name="name" required placeholder="John Doe" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          required
+                          placeholder="John Doe"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email *</label>
-                        <input type="email" name="email" required placeholder="john@example.com" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Email *
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          placeholder="john@example.com"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject *</label>
-                      <input type="text" name="subject" required placeholder="General Inquiry" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Subject *
+                      </label>
+                      <input
+                        type="text"
+                        name="subject"
+                        required
+                        placeholder="General Inquiry"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message *</label>
-                      <textarea name="message" rows={4} required placeholder="Please describe your inquiry..." className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Message *
+                      </label>
+                      <textarea
+                        name="message"
+                        rows={4}
+                        required
+                        placeholder="Please describe your inquiry..."
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                        <select name="category" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Category
+                        </label>
+                        <select
+                          name="category"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
                           <option value="General Inquiry">General Inquiry</option>
                           <option value="Reservation Question">Reservation Question</option>
                           <option value="Menu Question">Menu Question</option>
@@ -1027,7 +1187,12 @@ function APITestingSection() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
-                        <input type="tel" name="phone" placeholder="+1234567890" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                        <input
+                          type="tel"
+                          name="phone"
+                          placeholder="+1234567890"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
                     </div>
                   </>
@@ -1061,14 +1226,14 @@ function APITestingSection() {
       {(response || error) && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Response</h3>
-          
+
           {error && (
             <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">Error</h4>
               <p className="text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
-          
+
           {response && (
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Response Data</h4>
@@ -1097,13 +1262,13 @@ function APITestingSection() {
   )
 }
 
-function EndpointCard({ 
-  method, 
-  path, 
-  title, 
-  description, 
-  parameters = [], 
-  responseExample 
+function EndpointCard({
+  method,
+  path,
+  title,
+  description,
+  parameters = [],
+  responseExample
 }: {
   method: string
   path: string
@@ -1120,45 +1285,33 @@ function EndpointCard({
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
       <div className="flex items-center space-x-3 mb-4">
-        <span className={cn("method", method.toLowerCase())}>
-          {method}
-        </span>
-        <code className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded">
-          {path}
-        </code>
+        <span className={cn('method', method.toLowerCase())}>{method}</span>
+        <code className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded">{path}</code>
       </div>
-      
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-        {title}
-      </h3>
-      
-      <p className="text-gray-600 dark:text-gray-400 mb-4">
-        {description}
-      </p>
+
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
+
+      <p className="text-gray-600 dark:text-gray-400 mb-4">{description}</p>
 
       {parameters.length > 0 && (
         <div className="mb-4">
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Parameters</h4>
           <div className="space-y-2">
-            {parameters.map((param) => (
+            {parameters.map(param => (
               <div key={param.name} className="flex items-start space-x-3">
                 <code className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded min-w-[80px]">
                   {param.name}
                 </code>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {param.type}
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{param.type}</span>
                     {param.required && (
                       <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded">
                         Required
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {param.description}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{param.description}</p>
                 </div>
               </div>
             ))}
@@ -1169,9 +1322,7 @@ function EndpointCard({
       {responseExample && (
         <div>
           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Response Example</h4>
-          <pre className="text-sm bg-gray-100 dark:bg-gray-700 p-4 rounded overflow-x-auto">
-            {responseExample}
-          </pre>
+          <pre className="text-sm bg-gray-100 dark:bg-gray-700 p-4 rounded overflow-x-auto">{responseExample}</pre>
         </div>
       )}
     </div>

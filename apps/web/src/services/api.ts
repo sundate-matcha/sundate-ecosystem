@@ -1,4 +1,4 @@
-// API service for SunDate Café frontend
+// API service for Sundate Matcha frontend
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 // Generic API request function

@@ -58,7 +58,7 @@ app.use('/api/contact', contactRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'SunDate Café API is running',
+    message: 'Sundate Matcha API is running',
     timestamp: new Date().toISOString()
   });
 });

@@ -1,6 +1,6 @@
-# SunDate Café API
+# Sundate Matcha API
 
-A comprehensive Express.js backend API for the SunDate Café website, featuring table reservations, menu management, and contact form handling.
+A comprehensive Express.js backend API for the Sundate Matcha website, featuring table reservations, menu management, and contact form handling.
 
 ## Features
 

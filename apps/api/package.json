@@ -1,7 +1,7 @@
 {
   "name": "sundate-api",
   "version": "1.0.0",
-  "description": "SunDate Café API backend",
+  "description": "Sundate Matcha API backend",
   "main": "src/server.js",
   "type": "module",
   "scripts": {
@@ -28,6 +28,6 @@
     "typescript": "^5.3.3"
   },
   "keywords": ["café", "restaurant", "api", "express", "mongodb"],
-  "author": "SunDate Café",
+  "author": "Sundate Matcha",
   "license": "MIT"
 }

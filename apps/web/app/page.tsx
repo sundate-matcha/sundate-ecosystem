@@ -73,7 +73,7 @@ export default function HomePage() {
         <div className="container-custom">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary-600">SunDate Café</h1>
+              <h1 className="text-2xl font-bold text-primary-600">Sundate Matcha</h1>
             </div>
             
             {/* Desktop Navigation */}
@@ -132,7 +132,7 @@ export default function HomePage() {
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
             Welcome to{' '}
-            <span className="text-gradient">SunDate Café</span>
+            <span className="text-gradient">Sundate Matcha</span>
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto animate-slide-up">
             Where every moment is special. Experience the perfect blend of comfort, 
@@ -159,7 +159,7 @@ export default function HomePage() {
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-secondary-800 mb-4">
-              Why Choose SunDate Café?
+              Why Choose Sundate Matcha?
             </h2>
             <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
               We&apos;re committed to providing an exceptional dining experience that goes beyond just great food.
@@ -193,7 +193,7 @@ export default function HomePage() {
                 Our Story
               </h2>
               <p className="text-lg text-secondary-600 mb-6">
-                Founded in 2020, SunDate Café began as a dream to create a space where 
+                Founded in 2020, Sundate Matcha began as a dream to create a space where 
                 people could gather, connect, and enjoy exceptional food in a warm, 
                 welcoming atmosphere.
               </p>
@@ -316,7 +316,7 @@ export default function HomePage() {
             </h2>
             <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
               Book your perfect table and enjoy an unforgettable dining experience 
-              at SunDate Café.
+              at Sundate Matcha.
             </p>
           </div>
           
@@ -537,7 +537,7 @@ export default function HomePage() {
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-2xl font-bold text-primary-400 mb-4">SunDate Café</h3>
+              <h3 className="text-2xl font-bold text-primary-400 mb-4">Sundate Matcha</h3>
               <p className="text-secondary-300">
                 Where every moment is special. Experience the perfect blend of comfort, 
                 quality, and ambiance.
@@ -618,7 +618,7 @@ export default function HomePage() {
           
           <div className="border-t border-secondary-700 mt-8 pt-8 text-center">
             <p className="text-secondary-400">
-              © 2024 SunDate Café. All rights reserved.
+              © 2024 Sundate Matcha. All rights reserved.
             </p>
           </div>
         </div>

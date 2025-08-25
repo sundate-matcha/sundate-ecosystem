@@ -1,6 +1,6 @@
-# SunDate Café API Documentation
+# Sundate Matcha API Documentation
 
-This is the interactive documentation for the SunDate Café API, built with Next.js and featuring a comprehensive testing interface.
+This is the interactive documentation for the Sundate Matcha API, built with Next.js and featuring a comprehensive testing interface.
 
 ## Features
 
@@ -16,7 +16,7 @@ This is the interactive documentation for the SunDate Café API, built with Next
 
 - Node.js 18+ 
 - pnpm package manager
-- SunDate Café API server running
+- Sundate Matcha API server running
 
 ### Installation
 

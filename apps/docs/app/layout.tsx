@@ -13,10 +13,10 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'SunDate Café API Documentation',
-  description: 'Comprehensive API documentation for the SunDate Café reservation and management system',
+  title: 'Sundate Matcha API Documentation',
+  description: 'Comprehensive API documentation for the Sundate Matcha reservation and management system',
   keywords: ['API', 'documentation', 'restaurant', 'reservations', 'menu', 'contact'],
-  authors: [{ name: 'SunDate Café Development Team' }],
+  authors: [{ name: 'Sundate Matcha Development Team' }],
   viewport: 'width=device-width, initial-scale=1',
 }
 
