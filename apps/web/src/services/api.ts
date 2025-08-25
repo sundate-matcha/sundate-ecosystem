@@ -50,12 +50,13 @@ export interface Reservation {
 
 export interface CreateReservationRequest {
   name: string;
-  email: string;
-  phone?: string;
+  email?: string;
+  phone: string;
   date: string;
   time: string;
   guests: number;
   specialRequests?: string;
+  notes?: string;
 }
 
 export interface MenuItem {

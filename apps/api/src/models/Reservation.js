@@ -9,13 +9,14 @@ const reservationSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    // required: [true, 'Email is required'], // currently not required
     trim: true,
     lowercase: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
   phone: {
     type: String,
+    required: [true, 'Phone number is required'],
     trim: true,
     match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number']
   },
@@ -32,10 +33,11 @@ const reservationSchema = new mongoose.Schema({
   time: {
     type: String,
     required: [true, 'Time is required'],
-    enum: {
-      values: ['6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM'],
-      message: 'Please select a valid time slot'
-    }
+    // TODO: the allowed time slots are dynamic, so we need to comment this out for now
+    // enum: {
+    //   values: ['6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM'],
+    //   message: 'Please select a valid time slot'
+    // }
   },
   guests: {
     type: Number,

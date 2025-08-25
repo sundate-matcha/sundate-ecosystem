@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   BookOpen,
   Code,
@@ -14,7 +14,8 @@ import {
   Play,
   Settings,
   Menu,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -233,7 +234,8 @@ function OverviewSection() {
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Reservations</h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage table reservations with availability checking, time slots, and guest management.
+            Manage table reservations with availability checking, business hours (8:30 AM - 9:00 PM), Sunday closure,
+            and guest management.
           </p>
         </div>
 
@@ -268,7 +270,7 @@ function OverviewSection() {
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white">Base URL</h4>
               <code className="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                https://api.sundate-cafe.com
+                https://api.sundate.justdemo.work
               </code>
             </div>
           </div>
@@ -354,16 +356,22 @@ function ReservationsSection() {
           description="Create a new table reservation with validation and availability checking."
           parameters={[
             { name: 'name', type: 'string', required: true, description: 'Customer name (2-100 chars)' },
-            { name: 'email', type: 'string', required: true, description: 'Customer email' },
-            { name: 'date', type: 'string', required: true, description: 'Reservation date (ISO 8601)' },
+            { name: 'phone', type: 'string', required: true, description: 'Phone number (required)' },
+            { name: 'date', type: 'string', required: true, description: 'Reservation date (ISO 8601, no Sundays)' },
             { name: 'time', type: 'string', required: true, description: 'Time slot (6:00 PM - 9:00 PM)' },
             { name: 'guests', type: 'number', required: true, description: 'Number of guests (1-20)' },
-            { name: 'phone', type: 'string', required: false, description: 'Phone number' },
+            { name: 'email', type: 'string', required: false, description: 'Customer email (optional)' },
             {
               name: 'specialRequests',
               type: 'string',
               required: false,
               description: 'Special requests (max 500 chars)'
+            },
+            {
+              name: 'notes',
+              type: 'string',
+              required: false,
+              description: 'Additional notes (max 200 chars)'
             }
           ]}
           responseExample={`{
@@ -666,6 +674,103 @@ function APITestingSection() {
   const [response, setResponse] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [apiStatus, setApiStatus] = useState<{[key: string]: {status: 'idle' | 'checking' | 'success' | 'error', responseTime?: number, statusCode?: number, lastChecked?: Date}}>({})
+  const [checkingAll, setCheckingAll] = useState(false)
+
+  // Initialize API status for all endpoints
+  useEffect(() => {
+    const initialStatus: {[key: string]: {status: 'idle' | 'checking' | 'success' | 'error', responseTime?: number, statusCode?: number, lastChecked?: Date}} = {}
+    endpoints.forEach(endpoint => {
+      initialStatus[endpoint.id] = { status: 'idle' }
+    })
+    setApiStatus(initialStatus)
+    
+    // Auto-check health endpoint when component mounts or API base URL changes
+    if (apiBaseUrl) {
+      checkEndpointStatus('health-check')
+    }
+  }, [apiBaseUrl])
+
+  const checkEndpointStatus = async (endpointId: string) => {
+    const endpoint = endpoints.find(ep => ep.id === endpointId)
+    if (!endpoint) return
+
+    // Check if API base URL is valid
+    if (!apiBaseUrl || !apiBaseUrl.trim()) {
+      setApiStatus(prev => ({
+        ...prev,
+        [endpointId]: {
+          status: 'error',
+          responseTime: 0,
+          statusCode: undefined,
+          lastChecked: new Date()
+        }
+      }))
+      return
+    }
+
+    setApiStatus(prev => ({
+      ...prev,
+      [endpointId]: { status: 'checking' }
+    }))
+
+    const startTime = Date.now()
+    
+    try {
+      const url = new URL(endpoint.path, apiBaseUrl)
+      const res = await fetch(url.toString(), {
+        method: endpoint.method,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      const responseTime = Date.now() - startTime
+      
+      setApiStatus(prev => ({
+        ...prev,
+        [endpointId]: {
+          status: res.ok ? 'success' : 'error',
+          responseTime,
+          statusCode: res.status,
+          lastChecked: new Date()
+        }
+      }))
+    } catch (err) {
+      const responseTime = Date.now() - startTime
+      setApiStatus(prev => ({
+        ...prev,
+        [endpointId]: {
+          status: 'error',
+          responseTime,
+          statusCode: undefined,
+          lastChecked: new Date()
+        }
+      }))
+    }
+  }
+
+  const checkAllEndpoints = async () => {
+    if (!apiBaseUrl || !apiBaseUrl.trim()) {
+      // Mark all endpoints as error if no base URL
+      const errorStatus: {[key: string]: {status: 'idle' | 'checking' | 'success' | 'error', responseTime?: number, statusCode?: number, lastChecked?: Date}} = {}
+      endpoints.forEach(endpoint => {
+        errorStatus[endpoint.id] = {
+          status: 'error',
+          responseTime: 0,
+          statusCode: undefined,
+          lastChecked: new Date()
+        }
+      })
+      setApiStatus(errorStatus)
+      return
+    }
+    
+    setCheckingAll(true)
+    const promises = endpoints.map(endpoint => checkEndpointStatus(endpoint.id))
+    await Promise.all(promises)
+    setCheckingAll(false)
+  }
 
   const endpoints = [
     {
@@ -1035,13 +1140,13 @@ function APITestingSection() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Email *
+                          Phone *
                         </label>
                         <input
-                          type="email"
-                          name="email"
+                          type="tel"
+                          name="phone"
                           required
-                          placeholder="john@example.com"
+                          placeholder="+1234567890"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
                       </div>
@@ -1093,11 +1198,11 @@ function APITestingSection() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                         <input
-                          type="tel"
-                          name="phone"
-                          placeholder="+1234567890"
+                          type="email"
+                          name="email"
+                          placeholder="john@example.com"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
                       </div>
@@ -1110,6 +1215,15 @@ function APITestingSection() {
                         name="specialRequests"
                         rows={3}
                         placeholder="Any special requests or dietary restrictions..."
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                      <textarea
+                        name="notes"
+                        rows={2}
+                        placeholder="Additional notes or comments..."
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
@@ -1247,16 +1361,169 @@ function APITestingSection() {
 
       {/* API Status */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">API Status</h3>
-        <div className="flex items-center space-x-3">
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span className="text-gray-600 dark:text-gray-400">
-            Make sure your API server is running on the configured URL
-          </span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">API Status</h3>
+            {(() => {
+              const allStatuses = Object.values(apiStatus)
+              const successCount = allStatuses.filter(s => s.status === 'success').length
+              const errorCount = allStatuses.filter(s => s.status === 'error').length
+              const totalChecked = allStatuses.filter(s => s.status !== 'idle').length
+              
+              if (totalChecked === 0) return null
+              
+              const overallStatus = errorCount === 0 ? 'success' : errorCount === totalChecked ? 'error' : 'partial'
+              const statusColor = overallStatus === 'success' ? 'bg-green-500' : overallStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+              const statusText = overallStatus === 'success' ? 'All Endpoints Online' : overallStatus === 'error' ? 'All Endpoints Offline' : 'Some Endpoints Offline'
+              
+              return (
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 ${statusColor} rounded-full`}></div>
+                  <span className={`text-sm font-medium ${
+                    overallStatus === 'success' ? 'text-green-700 dark:text-green-300' :
+                    overallStatus === 'error' ? 'text-red-700 dark:text-red-300' :
+                    'text-yellow-700 dark:text-yellow-300'
+                  }`}>
+                    {statusText}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    ({successCount}/{totalChecked} online)
+                  </span>
+                </div>
+              )
+            })()}
+          </div>
+          <button
+            onClick={checkAllEndpoints}
+            disabled={checkingAll}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+          >
+            {checkingAll ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Checking...</span>
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                <span>Check All Endpoints</span>
+              </>
+            )}
+          </button>
         </div>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-          Default: http://localhost:5001 (update the base URL above if different)
-        </p>
+        
+        <div className="space-y-3">
+          {endpoints.map(endpoint => {
+            const status = apiStatus[endpoint.id]
+            if (!status) return null
+            
+            const getStatusColor = () => {
+              switch (status.status) {
+                case 'success': return 'bg-green-500'
+                case 'error': return 'bg-red-500'
+                case 'checking': return 'bg-yellow-500 animate-pulse'
+                default: return 'bg-gray-400'
+              }
+            }
+            
+            const getStatusText = () => {
+              switch (status.status) {
+                case 'success': return 'Online'
+                case 'error': return 'Offline'
+                case 'checking': return 'Checking...'
+                default: return 'Not Checked'
+              }
+            }
+            
+            const getStatusTextColor = () => {
+              switch (status.status) {
+                case 'success': return 'text-green-700 dark:text-green-300'
+                case 'error': return 'text-red-700 dark:text-red-300'
+                case 'checking': return 'text-yellow-700 dark:text-yellow-300'
+                default: return 'text-gray-500 dark:text-gray-400'
+              }
+            }
+            
+            return (
+              <div key={endpoint.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 ${getStatusColor()} rounded-full`}></div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {endpoint.method} {endpoint.path}
+                      </span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusTextColor()} bg-opacity-10`}>
+                        {getStatusText()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{endpoint.title}</p>
+                  </div>
+                </div>
+                
+                                 <div className="flex items-center space-x-4 text-sm">
+                   {status.statusCode && (
+                     <span className={`px-2 py-1 rounded text-xs font-mono font-bold ${
+                       status.statusCode >= 200 && status.statusCode < 300 
+                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                         : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                     }`}>
+                       {status.statusCode}
+                     </span>
+                   )}
+                   
+                   {status.responseTime && (
+                     <span className={`text-xs font-mono ${
+                       status.responseTime < 100 ? 'text-green-600 dark:text-green-400' :
+                       status.responseTime < 500 ? 'text-yellow-600 dark:text-yellow-400' :
+                       'text-red-600 dark:text-red-400'
+                     }`}>
+                       {status.responseTime}ms
+                     </span>
+                   )}
+                   
+                   {status.lastChecked && (
+                     <span className="text-gray-500 dark:text-gray-400 text-xs">
+                       {status.lastChecked.toLocaleTimeString()}
+                     </span>
+                   )}
+                   
+                   <button
+                     onClick={() => checkEndpointStatus(endpoint.id)}
+                     disabled={status.status === 'checking'}
+                     className="text-blue-600 hover:text-blue-700 disabled:text-blue-400 text-xs font-medium px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                   >
+                     {status.status === 'checking' ? (
+                       <div className="flex items-center space-x-1">
+                         <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                         <span>Checking...</span>
+                       </div>
+                     ) : (
+                       'Test'
+                     )}
+                   </button>
+                 </div>
+              </div>
+            )
+          })}
+        </div>
+        
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            <strong>Note:</strong> Make sure your API server is running on the configured URL above. 
+            The status indicators show real-time connectivity and response times for each endpoint.
+          </p>
+          {apiBaseUrl && (
+            <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
+              <strong>Current Base URL:</strong> {apiBaseUrl}
+            </p>
+          )}
+          {(!apiBaseUrl || !apiBaseUrl.trim()) && (
+            <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-2">
+              <strong>Warning:</strong> Please enter a valid API base URL to test endpoints.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )

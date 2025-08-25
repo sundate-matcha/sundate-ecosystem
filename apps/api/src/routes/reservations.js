@@ -11,9 +11,13 @@ const validateReservation = [
     .isLength({ min: 2, max: 100 })
     .withMessage('Name must be between 2 and 100 characters'),
   body('email')
+    .optional()
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
+  body('phone')
+    .matches(/^[\+]?[1-9][\d]{0,15}$/)
+    .withMessage('Please provide a valid phone number'),
   body('date')
     .isISO8601()
     .custom((value) => {
@@ -28,19 +32,19 @@ const validateReservation = [
       return true;
     }),
   body('time')
-    .isIn(['6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM'])
-    .withMessage('Please select a valid time slot'),
+    .isLength({ min: 1 })
+    .withMessage('Time is required'),
   body('guests')
     .isInt({ min: 1, max: 20 })
     .withMessage('Number of guests must be between 1 and 20'),
-  body('phone')
-    .optional()
-    .matches(/^[\+]?[1-9][\d]{0,15}$/)
-    .withMessage('Please provide a valid phone number'),
   body('specialRequests')
     .optional()
     .isLength({ max: 500 })
-    .withMessage('Special requests cannot exceed 500 characters')
+    .withMessage('Special requests cannot exceed 500 characters'),
+  body('notes')
+    .optional()
+    .isLength({ max: 200 })
+    .withMessage('Notes cannot exceed 200 characters')
 ];
 
 // GET /api/reservations - Get all reservations (admin only)
@@ -148,9 +152,9 @@ router.post('/', validateReservation, async (req, res) => {
     // await sendReservationConfirmation(reservation);
     
     res.status(201).json({
+      confirmationNumber: reservation._id.toString().slice(-8).toUpperCase(),
       message: 'Reservation created successfully',
       reservation,
-      confirmationNumber: reservation._id.toString().slice(-8).toUpperCase()
     });
     
   } catch (error) {
