@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import MenuItem from '../models/MenuItem.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -174,6 +175,89 @@ router.get('/featured', async (req, res) => {
   }
 });
 
+// GET /api/menu/public - Get public menu items for landing page
+router.get('/public', async (req, res) => {
+  try {
+    const { 
+      category, 
+      search, 
+      dietary, 
+      maxPrice, 
+      minPrice, 
+      spicyLevel,
+      page = 1, 
+      limit = 20,
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = req.query;
+    
+    const query = { isAvailable: true }; // Only show available items
+    
+    // Filter by category
+    if (category) {
+      query.category = category;
+    }
+    
+    // Filter by price range
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
+    
+    // Filter by spicy level
+    if (spicyLevel !== undefined) {
+      query.spicyLevel = parseInt(spicyLevel);
+    }
+    
+    // Filter by dietary restrictions
+    if (dietary) {
+      const dietaryArray = Array.isArray(dietary) ? dietary : [dietary];
+      query.dietary = { $in: dietaryArray };
+    }
+    
+    // Search functionality
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } }
+      ];
+    }
+    
+    // Sorting
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    
+    const menuItems = await MenuItem.find(query)
+      .select('-isAvailable -isFeatured') // Don't expose internal flags
+      .sort(sortOptions)
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+    
+    const total = await MenuItem.countDocuments(query);
+    
+    res.json({
+      menuItems,
+      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page),
+      total,
+      filters: {
+        category,
+        search,
+        dietary,
+        maxPrice,
+        minPrice,
+        spicyLevel
+      }
+    });
+    
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch public menu items', message: error.message });
+  }
+});
+
 // GET /api/menu/category/:category - Get menu items by category
 router.get('/category/:category', async (req, res) => {
   try {
@@ -289,7 +373,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/menu - Create a new menu item (admin only)
-router.post('/', validateMenuItem, async (req, res) => {
+router.post('/', authenticateToken, requireAdmin, validateMenuItem, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -313,7 +397,7 @@ router.post('/', validateMenuItem, async (req, res) => {
 });
 
 // PUT /api/menu/:id - Update a menu item (admin only)
-router.put('/:id', validateMenuItem, async (req, res) => {
+router.put('/:id', authenticateToken, requireAdmin, validateMenuItem, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -342,7 +426,7 @@ router.put('/:id', validateMenuItem, async (req, res) => {
 });
 
 // PATCH /api/menu/:id/toggle-availability - Toggle availability (admin only)
-router.patch('/:id/toggle-availability', async (req, res) => {
+router.patch('/:id/toggle-availability', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id);
     if (!menuItem) {
@@ -363,7 +447,7 @@ router.patch('/:id/toggle-availability', async (req, res) => {
 });
 
 // PATCH /api/menu/:id/toggle-featured - Toggle featured status (admin only)
-router.patch('/:id/toggle-featured', async (req, res) => {
+router.patch('/:id/toggle-featured', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id);
     if (!menuItem) {
@@ -384,7 +468,7 @@ router.patch('/:id/toggle-featured', async (req, res) => {
 });
 
 // DELETE /api/menu/:id - Delete a menu item (admin only)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id);
     if (!menuItem) {

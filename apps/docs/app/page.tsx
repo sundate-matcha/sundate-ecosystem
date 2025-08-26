@@ -35,7 +35,8 @@ export default function HomePage() {
         { id: 'reservations', label: 'Reservations', icon: Calendar },
         { id: 'menu', label: 'Menu', icon: UtensilsCrossed },
         { id: 'contact', label: 'Contact', icon: MessageSquare },
-        { id: 'authentication', label: 'Authentication', icon: Shield }
+        { id: 'authentication', label: 'Authentication', icon: Shield },
+        { id: 'admin-menu', label: 'Admin Menu', icon: Settings }
       ]
     },
     { id: 'testing', label: 'API Testing', icon: Play, level: 0 },
@@ -209,6 +210,7 @@ export default function HomePage() {
             {activeSection === 'contact' && <ContactSection />}
             {activeSection === 'testing' && <APITestingSection />}
             {activeSection === 'authentication' && <AuthenticationSection />}
+            {activeSection === 'admin-menu' && <AdminMenuSection />}
             {activeSection === 'errors' && <ErrorHandlingSection />}
           </main>
         </div>
@@ -245,7 +247,8 @@ function OverviewSection() {
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Menu Management</h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Handle menu items, categories, dietary options, and nutritional information.
+            Handle menu items, categories, dietary options, and nutritional information. Includes admin CRUD operations
+            and public landing page endpoints.
           </p>
         </div>
 
@@ -256,6 +259,17 @@ function OverviewSection() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Customer Contact</h3>
           <p className="text-gray-600 dark:text-gray-400">
             Process customer inquiries, feedback, and support requests efficiently.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mb-4">
+            <Shield className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">User Authentication</h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Secure user registration, login, logout, and profile management with JWT tokens and role-based access
+            control.
           </p>
         </div>
       </div>
@@ -281,7 +295,7 @@ function OverviewSection() {
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white">Authentication</h4>
               <p className="text-gray-600 dark:text-gray-400">
-                Most endpoints require authentication. Include your API key in the Authorization header.
+                Most endpoints require authentication. Use JWT tokens for user authentication and admin operations.
               </p>
             </div>
           </div>
@@ -472,6 +486,40 @@ function MenuSection() {
   }
 ]`}
         />
+
+        <EndpointCard
+          method="GET"
+          path="/api/menu/public"
+          title="Get Public Menu Items"
+          description="Retrieve public menu items for landing page (only available items)."
+          parameters={[
+            { name: 'category', type: 'string', description: 'Filter by category' },
+            { name: 'search', type: 'string', description: 'Search in name/description' },
+            { name: 'dietary', type: 'string[]', description: 'Filter by dietary restrictions' },
+            { name: 'maxPrice', type: 'number', description: 'Maximum price filter' },
+            { name: 'minPrice', type: 'number', description: 'Minimum price filter' },
+            { name: 'spicyLevel', type: 'number', description: 'Spicy level (0-5)' },
+            { name: 'page', type: 'number', description: 'Page number (default: 1)' },
+            { name: 'limit', type: 'number', description: 'Items per page (default: 20)' },
+            { name: 'sortBy', type: 'string', description: 'Sort field (default: name)' },
+            { name: 'sortOrder', type: 'string', description: 'Sort order: asc/desc (default: asc)' }
+          ]}
+          responseExample={`{
+  "menuItems": [
+    {
+      "id": "...",
+      "name": "Grilled Salmon",
+      "description": "...",
+      "price": 28.99,
+      "category": "Dinner"
+    }
+  ],
+  "totalPages": 3,
+  "currentPage": 1,
+  "total": 45,
+  "filters": {...}
+}`}
+        />
       </div>
     </div>
   )
@@ -532,6 +580,119 @@ function ContactSection() {
   )
 }
 
+function AdminMenuSection() {
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Admin Menu Management</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          Administrative endpoints for managing menu items. Requires admin authentication.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <EndpointCard
+          method="POST"
+          path="/api/menu"
+          title="Create Menu Item"
+          description="Create a new menu item. Admin only."
+          parameters={[
+            { name: 'name', type: 'string', required: true, description: 'Item name (2-100 chars)' },
+            { name: 'description', type: 'string', required: true, description: 'Description (10-500 chars)' },
+            { name: 'price', type: 'number', required: true, description: 'Price (positive number)' },
+            { name: 'category', type: 'string', required: true, description: 'Category from predefined list' },
+            { name: 'ingredients', type: 'string[]', required: false, description: 'Array of ingredients' },
+            { name: 'allergens', type: 'string[]', required: false, description: 'Array of allergens' },
+            { name: 'dietary', type: 'string[]', required: false, description: 'Dietary options' },
+            { name: 'spicyLevel', type: 'number', required: false, description: 'Spicy level (0-5)' },
+            { name: 'preparationTime', type: 'number', required: false, description: 'Prep time in minutes' },
+            { name: 'calories', type: 'number', required: false, description: 'Calorie content' },
+            { name: 'protein', type: 'number', required: false, description: 'Protein content' },
+            { name: 'carbs', type: 'number', required: false, description: 'Carbohydrate content' },
+            { name: 'fat', type: 'number', required: false, description: 'Fat content' },
+            { name: 'tags', type: 'string[]', required: false, description: 'Array of tags' }
+          ]}
+          responseExample={`{
+  "message": "Menu item created successfully",
+  "menuItem": {
+    "id": "...",
+    "name": "Grilled Salmon",
+    "description": "...",
+    "price": 28.99,
+    "category": "Dinner"
+  }
+}`}
+        />
+
+        <EndpointCard
+          method="PUT"
+          path="/api/menu/:id"
+          title="Update Menu Item"
+          description="Update an existing menu item. Admin only."
+          parameters={[
+            { name: 'id', type: 'string', required: true, description: 'Menu item ID' },
+            { name: 'name', type: 'string', required: false, description: 'Item name (2-100 chars)' },
+            { name: 'description', type: 'string', required: false, description: 'Description (10-500 chars)' },
+            { name: 'price', type: 'number', required: false, description: 'Price (positive number)' },
+            { name: 'category', type: 'string', required: false, description: 'Category from predefined list' }
+          ]}
+          responseExample={`{
+  "message": "Menu item updated successfully",
+  "menuItem": {
+    "id": "...",
+    "name": "Updated Grilled Salmon",
+    "description": "...",
+    "price": 29.99,
+    "category": "Dinner"
+  }
+}`}
+        />
+
+        <EndpointCard
+          method="DELETE"
+          path="/api/menu/:id"
+          title="Delete Menu Item"
+          description="Delete a menu item. Admin only."
+          parameters={[{ name: 'id', type: 'string', required: true, description: 'Menu item ID' }]}
+          responseExample={`{
+  "message": "Menu item deleted successfully"
+}`}
+        />
+
+        <EndpointCard
+          method="PATCH"
+          path="/api/menu/:id/toggle-availability"
+          title="Toggle Availability"
+          description="Toggle menu item availability. Admin only."
+          parameters={[{ name: 'id', type: 'string', required: true, description: 'Menu item ID' }]}
+          responseExample={`{
+  "message": "Menu item made unavailable",
+  "menuItem": {
+    "id": "...",
+    "isAvailable": false
+  }
+}`}
+        />
+
+        <EndpointCard
+          method="PATCH"
+          path="/api/menu/:id/toggle-featured"
+          title="Toggle Featured Status"
+          description="Toggle menu item featured status. Admin only."
+          parameters={[{ name: 'id', type: 'string', required: true, description: 'Menu item ID' }]}
+          responseExample={`{
+  "message": "Menu item marked as featured",
+  "menuItem": {
+    "id": "...",
+    "isFeatured": true
+  }
+}`}
+        />
+      </div>
+    </div>
+  )
+}
+
 function AuthenticationSection() {
   return (
     <div className="space-y-8">
@@ -542,25 +703,162 @@ function AuthenticationSection() {
         </p>
       </div>
 
+      <div className="space-y-6">
+        <EndpointCard
+          method="POST"
+          path="/api/auth/register"
+          title="User Registration"
+          description="Register a new user account."
+          parameters={[
+            {
+              name: 'username',
+              type: 'string',
+              required: true,
+              description: 'Username (3-30 chars, alphanumeric + underscore)'
+            },
+            { name: 'email', type: 'string', required: true, description: 'Valid email address' },
+            { name: 'password', type: 'string', required: true, description: 'Password (min 6 chars)' },
+            { name: 'firstName', type: 'string', required: true, description: 'First name (1-50 chars)' },
+            { name: 'lastName', type: 'string', required: true, description: 'Last name (1-50 chars)' },
+            { name: 'phone', type: 'string', required: false, description: 'Phone number (optional)' }
+          ]}
+          responseExample={`{
+  "message": "User registered successfully",
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}`}
+        />
+
+        <EndpointCard
+          method="POST"
+          path="/api/auth/login"
+          title="User Login"
+          description="Authenticate user and get JWT token."
+          parameters={[
+            { name: 'identifier', type: 'string', required: true, description: 'Email or username' },
+            { name: 'password', type: 'string', required: true, description: 'User password' }
+          ]}
+          responseExample={`{
+  "message": "Login successful",
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}`}
+        />
+
+        <EndpointCard
+          method="POST"
+          path="/api/auth/logout"
+          title="User Logout"
+          description="Logout user (client-side token removal)."
+          parameters={[]}
+          responseExample={`{
+  "message": "Logout successful",
+  "note": "Please remove the token from client storage"
+}`}
+        />
+
+        <EndpointCard
+          method="GET"
+          path="/api/auth/profile"
+          title="Get User Profile"
+          description="Get current user profile information."
+          parameters={[]}
+          responseExample={`{
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "user"
+  }
+}`}
+        />
+
+        <EndpointCard
+          method="PUT"
+          path="/api/auth/profile"
+          title="Update User Profile"
+          description="Update current user profile information."
+          parameters={[
+            { name: 'firstName', type: 'string', required: false, description: 'First name (1-50 chars)' },
+            { name: 'lastName', type: 'string', required: false, description: 'Last name (1-50 chars)' },
+            { name: 'phone', type: 'string', required: false, description: 'Phone number (10-15 chars)' },
+            { name: 'preferences', type: 'object', required: false, description: 'User preferences object' }
+          ]}
+          responseExample={`{
+  "message": "Profile updated successfully",
+  "user": {
+    "id": "...",
+    "firstName": "John",
+    "lastName": "Smith",
+    "phone": "+1234567890"
+  }
+}`}
+        />
+
+        <EndpointCard
+          method="POST"
+          path="/api/auth/change-password"
+          title="Change Password"
+          description="Change user password."
+          parameters={[
+            { name: 'currentPassword', type: 'string', required: true, description: 'Current password' },
+            { name: 'newPassword', type: 'string', required: true, description: 'New password (min 6 chars)' }
+          ]}
+          responseExample={`{
+  "message": "Password changed successfully"
+}`}
+        />
+
+        <EndpointCard
+          method="GET"
+          path="/api/auth/verify"
+          title="Verify Token"
+          description="Verify JWT token validity."
+          parameters={[]}
+          responseExample={`{
+  "valid": true,
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com"
+  }
+}`}
+        />
+      </div>
+
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">API Key Authentication</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">JWT Token Authentication</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-4">
-          Most endpoints require authentication using an API key. Include your key in the Authorization header.
+          The API uses JWT (JSON Web Tokens) for authentication. Include your token in the Authorization header.
         </p>
 
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Header Format</h3>
             <code className="text-sm bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded block">
-              Authorization: Bearer YOUR_API_KEY_HERE
+              Authorization: Bearer YOUR_JWT_TOKEN_HERE
             </code>
           </div>
 
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Example Request</h3>
             <pre className="text-sm bg-gray-100 dark:bg-gray-700 p-4 rounded overflow-x-auto">
-              {`curl -X GET "https://api.sundate-cafe.com/api/reservations" \\
-  -H "Authorization: Bearer YOUR_API_KEY_HERE" \\
+              {`curl -X GET "https://api.sundate-cafe.com/api/auth/profile" \\
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \\
   -H "Content-Type: application/json"`}
             </pre>
           </div>
@@ -674,17 +972,31 @@ function APITestingSection() {
   const [response, setResponse] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [apiStatus, setApiStatus] = useState<{[key: string]: {status: 'idle' | 'checking' | 'success' | 'error', responseTime?: number, statusCode?: number, lastChecked?: Date}}>({})
+  const [apiStatus, setApiStatus] = useState<{
+    [key: string]: {
+      status: 'idle' | 'checking' | 'success' | 'error'
+      responseTime?: number
+      statusCode?: number
+      lastChecked?: Date
+    }
+  }>({})
   const [checkingAll, setCheckingAll] = useState(false)
 
   // Initialize API status for all endpoints
   useEffect(() => {
-    const initialStatus: {[key: string]: {status: 'idle' | 'checking' | 'success' | 'error', responseTime?: number, statusCode?: number, lastChecked?: Date}} = {}
+    const initialStatus: {
+      [key: string]: {
+        status: 'idle' | 'checking' | 'success' | 'error'
+        responseTime?: number
+        statusCode?: number
+        lastChecked?: Date
+      }
+    } = {}
     endpoints.forEach(endpoint => {
       initialStatus[endpoint.id] = { status: 'idle' }
     })
     setApiStatus(initialStatus)
-    
+
     // Auto-check health endpoint when component mounts or API base URL changes
     if (apiBaseUrl) {
       checkEndpointStatus('health-check')
@@ -715,7 +1027,7 @@ function APITestingSection() {
     }))
 
     const startTime = Date.now()
-    
+
     try {
       const url = new URL(endpoint.path, apiBaseUrl)
       const res = await fetch(url.toString(), {
@@ -724,9 +1036,9 @@ function APITestingSection() {
           'Content-Type': 'application/json'
         }
       })
-      
+
       const responseTime = Date.now() - startTime
-      
+
       setApiStatus(prev => ({
         ...prev,
         [endpointId]: {
@@ -753,7 +1065,14 @@ function APITestingSection() {
   const checkAllEndpoints = async () => {
     if (!apiBaseUrl || !apiBaseUrl.trim()) {
       // Mark all endpoints as error if no base URL
-      const errorStatus: {[key: string]: {status: 'idle' | 'checking' | 'success' | 'error', responseTime?: number, statusCode?: number, lastChecked?: Date}} = {}
+      const errorStatus: {
+        [key: string]: {
+          status: 'idle' | 'checking' | 'success' | 'error'
+          responseTime?: number
+          statusCode?: number
+          lastChecked?: Date
+        }
+      } = {}
       endpoints.forEach(endpoint => {
         errorStatus[endpoint.id] = {
           status: 'error',
@@ -765,7 +1084,7 @@ function APITestingSection() {
       setApiStatus(errorStatus)
       return
     }
-    
+
     setCheckingAll(true)
     const promises = endpoints.map(endpoint => checkEndpointStatus(endpoint.id))
     await Promise.all(promises)
@@ -810,11 +1129,47 @@ function APITestingSection() {
       hasBody: false
     },
     {
+      id: 'menu-public',
+      method: 'GET',
+      path: '/api/menu/public',
+      title: 'Get Public Menu Items',
+      description: 'Retrieve public menu items for landing page (only available items).',
+      hasParams: true,
+      hasBody: false
+    },
+    {
       id: 'menu-categories',
       method: 'GET',
       path: '/api/menu/categories',
       title: 'Get Categories',
       description: 'Retrieve all available menu categories.',
+      hasParams: false,
+      hasBody: false
+    },
+    {
+      id: 'auth-register',
+      method: 'POST',
+      path: '/api/auth/register',
+      title: 'User Registration',
+      description: 'Register a new user account.',
+      hasParams: false,
+      hasBody: true
+    },
+    {
+      id: 'auth-login',
+      method: 'POST',
+      path: '/api/auth/login',
+      title: 'User Login',
+      description: 'Authenticate user and get JWT token.',
+      hasParams: false,
+      hasBody: true
+    },
+    {
+      id: 'auth-profile',
+      method: 'GET',
+      path: '/api/auth/profile',
+      title: 'Get User Profile',
+      description: 'Get current user profile information.',
       hasParams: false,
       hasBody: false
     },
@@ -1114,6 +1469,95 @@ function APITestingSection() {
                     </div>
                   </div>
                 )}
+                {selectedEndpoint === 'menu-public' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Category
+                      </label>
+                      <select
+                        name="category"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="">All Categories</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Desserts">Desserts</option>
+                        <option value="Appetizers">Appetizers</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                      <input
+                        type="text"
+                        name="search"
+                        placeholder="Search menu items..."
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Max Price
+                      </label>
+                      <input
+                        type="number"
+                        name="maxPrice"
+                        step="0.01"
+                        min="0"
+                        placeholder="50.00"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Min Price
+                      </label>
+                      <input
+                        type="number"
+                        name="minPrice"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Spicy Level
+                      </label>
+                      <select
+                        name="spicyLevel"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="">Any Level</option>
+                        <option value="0">Not Spicy</option>
+                        <option value="1">Mild</option>
+                        <option value="2">Medium</option>
+                        <option value="3">Hot</option>
+                        <option value="4">Very Hot</option>
+                        <option value="5">Extreme</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dietary</label>
+                      <select
+                        name="dietary"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="">Any Dietary</option>
+                        <option value="Vegetarian">Vegetarian</option>
+                        <option value="Vegan">Vegan</option>
+                        <option value="Gluten-Free">Gluten-Free</option>
+                        <option value="Dairy-Free">Dairy-Free</option>
+                        <option value="Nut-Free">Nut-Free</option>
+                        <option value="Halal">Halal</option>
+                        <option value="Kosher">Kosher</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
           )}
@@ -1311,6 +1755,113 @@ function APITestingSection() {
                     </div>
                   </>
                 )}
+                {selectedEndpoint === 'auth-register' && (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Username *
+                        </label>
+                        <input
+                          type="text"
+                          name="username"
+                          required
+                          placeholder="john_doe"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Email *
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          placeholder="john@example.com"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          First Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          required
+                          placeholder="John"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Last Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          required
+                          placeholder="Doe"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Password *
+                        </label>
+                        <input
+                          type="password"
+                          name="password"
+                          required
+                          placeholder="••••••••"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          placeholder="+1234567890"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+                {selectedEndpoint === 'auth-login' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Email or Username *
+                      </label>
+                      <input
+                        type="text"
+                        name="identifier"
+                        required
+                        placeholder="john@example.com or john_doe"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Password *
+                      </label>
+                      <input
+                        type="password"
+                        name="password"
+                        required
+                        placeholder="••••••••"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                  </>
+                )}
               </form>
             </div>
           )}
@@ -1369,21 +1920,35 @@ function APITestingSection() {
               const successCount = allStatuses.filter(s => s.status === 'success').length
               const errorCount = allStatuses.filter(s => s.status === 'error').length
               const totalChecked = allStatuses.filter(s => s.status !== 'idle').length
-              
+
               if (totalChecked === 0) return null
-              
+
               const overallStatus = errorCount === 0 ? 'success' : errorCount === totalChecked ? 'error' : 'partial'
-              const statusColor = overallStatus === 'success' ? 'bg-green-500' : overallStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-              const statusText = overallStatus === 'success' ? 'All Endpoints Online' : overallStatus === 'error' ? 'All Endpoints Offline' : 'Some Endpoints Offline'
-              
+              const statusColor =
+                overallStatus === 'success'
+                  ? 'bg-green-500'
+                  : overallStatus === 'error'
+                    ? 'bg-red-500'
+                    : 'bg-yellow-500'
+              const statusText =
+                overallStatus === 'success'
+                  ? 'All Endpoints Online'
+                  : overallStatus === 'error'
+                    ? 'All Endpoints Offline'
+                    : 'Some Endpoints Offline'
+
               return (
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 ${statusColor} rounded-full`}></div>
-                  <span className={`text-sm font-medium ${
-                    overallStatus === 'success' ? 'text-green-700 dark:text-green-300' :
-                    overallStatus === 'error' ? 'text-red-700 dark:text-red-300' :
-                    'text-yellow-700 dark:text-yellow-300'
-                  }`}>
+                  <span
+                    className={`text-sm font-medium ${
+                      overallStatus === 'success'
+                        ? 'text-green-700 dark:text-green-300'
+                        : overallStatus === 'error'
+                          ? 'text-red-700 dark:text-red-300'
+                          : 'text-yellow-700 dark:text-yellow-300'
+                    }`}
+                  >
                     {statusText}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -1411,41 +1976,56 @@ function APITestingSection() {
             )}
           </button>
         </div>
-        
+
         <div className="space-y-3">
           {endpoints.map(endpoint => {
             const status = apiStatus[endpoint.id]
             if (!status) return null
-            
+
             const getStatusColor = () => {
               switch (status.status) {
-                case 'success': return 'bg-green-500'
-                case 'error': return 'bg-red-500'
-                case 'checking': return 'bg-yellow-500 animate-pulse'
-                default: return 'bg-gray-400'
+                case 'success':
+                  return 'bg-green-500'
+                case 'error':
+                  return 'bg-red-500'
+                case 'checking':
+                  return 'bg-yellow-500 animate-pulse'
+                default:
+                  return 'bg-gray-400'
               }
             }
-            
+
             const getStatusText = () => {
               switch (status.status) {
-                case 'success': return 'Online'
-                case 'error': return 'Offline'
-                case 'checking': return 'Checking...'
-                default: return 'Not Checked'
+                case 'success':
+                  return 'Online'
+                case 'error':
+                  return 'Offline'
+                case 'checking':
+                  return 'Checking...'
+                default:
+                  return 'Not Checked'
               }
             }
-            
+
             const getStatusTextColor = () => {
               switch (status.status) {
-                case 'success': return 'text-green-700 dark:text-green-300'
-                case 'error': return 'text-red-700 dark:text-red-300'
-                case 'checking': return 'text-yellow-700 dark:text-yellow-300'
-                default: return 'text-gray-500 dark:text-gray-400'
+                case 'success':
+                  return 'text-green-700 dark:text-green-300'
+                case 'error':
+                  return 'text-red-700 dark:text-red-300'
+                case 'checking':
+                  return 'text-yellow-700 dark:text-yellow-300'
+                default:
+                  return 'text-gray-500 dark:text-gray-400'
               }
             }
-            
+
             return (
-              <div key={endpoint.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div
+                key={endpoint.id}
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+              >
                 <div className="flex items-center space-x-3">
                   <div className={`w-3 h-3 ${getStatusColor()} rounded-full`}></div>
                   <div>
@@ -1460,58 +2040,64 @@ function APITestingSection() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">{endpoint.title}</p>
                   </div>
                 </div>
-                
-                                 <div className="flex items-center space-x-4 text-sm">
-                   {status.statusCode && (
-                     <span className={`px-2 py-1 rounded text-xs font-mono font-bold ${
-                       status.statusCode >= 200 && status.statusCode < 300 
-                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                         : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                     }`}>
-                       {status.statusCode}
-                     </span>
-                   )}
-                   
-                   {status.responseTime && (
-                     <span className={`text-xs font-mono ${
-                       status.responseTime < 100 ? 'text-green-600 dark:text-green-400' :
-                       status.responseTime < 500 ? 'text-yellow-600 dark:text-yellow-400' :
-                       'text-red-600 dark:text-red-400'
-                     }`}>
-                       {status.responseTime}ms
-                     </span>
-                   )}
-                   
-                   {status.lastChecked && (
-                     <span className="text-gray-500 dark:text-gray-400 text-xs">
-                       {status.lastChecked.toLocaleTimeString()}
-                     </span>
-                   )}
-                   
-                   <button
-                     onClick={() => checkEndpointStatus(endpoint.id)}
-                     disabled={status.status === 'checking'}
-                     className="text-blue-600 hover:text-blue-700 disabled:text-blue-400 text-xs font-medium px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                   >
-                     {status.status === 'checking' ? (
-                       <div className="flex items-center space-x-1">
-                         <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-                         <span>Checking...</span>
-                       </div>
-                     ) : (
-                       'Test'
-                     )}
-                   </button>
-                 </div>
+
+                <div className="flex items-center space-x-4 text-sm">
+                  {status.statusCode && (
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-mono font-bold ${
+                        status.statusCode >= 200 && status.statusCode < 300
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                      }`}
+                    >
+                      {status.statusCode}
+                    </span>
+                  )}
+
+                  {status.responseTime && (
+                    <span
+                      className={`text-xs font-mono ${
+                        status.responseTime < 100
+                          ? 'text-green-600 dark:text-green-400'
+                          : status.responseTime < 500
+                            ? 'text-yellow-600 dark:text-yellow-400'
+                            : 'text-red-600 dark:text-red-400'
+                      }`}
+                    >
+                      {status.responseTime}ms
+                    </span>
+                  )}
+
+                  {status.lastChecked && (
+                    <span className="text-gray-500 dark:text-gray-400 text-xs">
+                      {status.lastChecked.toLocaleTimeString()}
+                    </span>
+                  )}
+
+                  <button
+                    onClick={() => checkEndpointStatus(endpoint.id)}
+                    disabled={status.status === 'checking'}
+                    className="text-blue-600 hover:text-blue-700 disabled:text-blue-400 text-xs font-medium px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  >
+                    {status.status === 'checking' ? (
+                      <div className="flex items-center space-x-1">
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                        <span>Checking...</span>
+                      </div>
+                    ) : (
+                      'Test'
+                    )}
+                  </button>
+                </div>
               </div>
             )
           })}
         </div>
-        
+
         <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <p className="text-sm text-blue-700 dark:text-blue-300">
-            <strong>Note:</strong> Make sure your API server is running on the configured URL above. 
-            The status indicators show real-time connectivity and response times for each endpoint.
+            <strong>Note:</strong> Make sure your API server is running on the configured URL above. The status
+            indicators show real-time connectivity and response times for each endpoint.
           </p>
           {apiBaseUrl && (
             <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">

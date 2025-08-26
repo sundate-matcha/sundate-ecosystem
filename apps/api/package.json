@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "create-admin": "node scripts/create-admin.js"
   },
   "dependencies": {
     "express": "^4.18.2",

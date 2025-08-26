@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 import reservationRoutes from './routes/reservations.js';
 import menuRoutes from './routes/menu.js';
 import contactRoutes from './routes/contact.js';
+import authRoutes from './routes/auth.js';
 
 // Load environment variables
 dotenv.config();
@@ -41,7 +42,7 @@ app.use(morgan('combined'));
 // MongoDB connection
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/sundate-cafe');
+    const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message);
@@ -53,6 +54,7 @@ const connectDB = async () => {
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
