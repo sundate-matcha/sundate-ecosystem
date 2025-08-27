@@ -105,3 +105,62 @@ code {
 .method.put { @apply bg-yellow-600; }
 .method.patch { @apply bg-orange-600; }
 .method.delete { @apply bg-red-600; }
+
+/* Custom Select Styling */
+select {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+select:focus {
+  @apply outline-none ring-2 ring-blue-500 border-blue-500;
+}
+
+select:hover {
+  @apply border-neutral-400 dark:border-neutral-500;
+}
+
+/* Custom Select Container */
+.select-container {
+  @apply relative;
+}
+
+.select-container select {
+  @apply appearance-none;
+}
+
+.select-container::after {
+  content: '';
+  @apply absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none;
+}
+
+/* Enhanced Select Options */
+select option {
+  @apply py-2 px-3;
+}
+
+select option:hover {
+  @apply bg-blue-50 dark:bg-blue-900/30;
+}
+
+select option:checked {
+  @apply bg-blue-100 dark:bg-blue-800 text-blue-900 dark:text-blue-100;
+}
+
+/* Select Focus States */
+select:focus-within {
+  @apply ring-2 ring-blue-500 border-blue-500;
+}
+
+/* Select Disabled State */
+select:disabled {
+  @apply opacity-50 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800;
+}
+
+/* Select Group Styling */
+select optgroup {
+  @apply font-semibold text-neutral-700 dark:text-neutral-300;
+}
+
+select optgroup option {
+  @apply font-normal text-neutral-600 dark:text-neutral-400;
+}
