@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   BookOpen,
@@ -39,7 +39,8 @@ const sections = [
   { id: 'testing', label: 'API Testing', icon: Play, level: 0 }
 ]
 
-export default function HomePage() {
+// Create a wrapper component for the main content that uses search params
+function HomePageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [expandedFeatures, setExpandedFeatures] = useState(false)
@@ -99,13 +100,14 @@ export default function HomePage() {
     if (section && section !== 'overview') {
       const sectionLabel =
         sections.find(s => s.id === section)?.label ||
-        sections.flatMap(s => s.children || []).find(c => c.id === section)?.label ||
-        section
-      document.title = `${sectionLabel} - Sundate Matcha API Documentation`
+        sections.flatMap(s => s.children || []).find(c => c.id === section)?.label
+      if (sectionLabel) {
+        document.title = `${sectionLabel} - Sundate API Documentation`
+      }
     } else {
-      document.title = 'Sundate Matcha API Documentation'
+      document.title = 'Sundate API Documentation'
     }
-  }, [activeSection, sections])
+  }, [searchParams])
 
   const renderNavigationItem = (section: any, isChild = false) => {
     const Icon = section.icon
@@ -261,7 +263,11 @@ export default function HomePage() {
             {activeSection === 'reservations' && <ReservationsSection />}
             {activeSection === 'menu' && <MenuSection />}
             {activeSection === 'contact' && <ContactSection />}
-            {activeSection === 'testing' && <APITestingSection activeSection={activeSection} />}
+            {activeSection === 'testing' && (
+              <Suspense fallback={<div>Loading API Testing...</div>}>
+                <APITestingSection activeSection={activeSection} />
+              </Suspense>
+            )}
             {activeSection === 'authentication' && <AuthenticationSection />}
             {activeSection === 'admin-menu' && <AdminMenuSection />}
             {activeSection === 'errors' && <ErrorHandlingSection />}
@@ -2350,5 +2356,13 @@ function EndpointCard({
         </div>
       )}
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   )
 }
