@@ -982,7 +982,7 @@ function APITestingSection() {
   }>({})
   const [checkingAll, setCheckingAll] = useState(false)
 
-  // Initialize API status for all endpoints
+  // Initialize API status for GET endpoints only
   useEffect(() => {
     const initialStatus: {
       [key: string]: {
@@ -992,7 +992,9 @@ function APITestingSection() {
         lastChecked?: Date
       }
     } = {}
-    endpoints.forEach(endpoint => {
+    // Only initialize status for GET endpoints
+    const getEndpoints = endpoints.filter(endpoint => endpoint.method === 'GET')
+    getEndpoints.forEach(endpoint => {
       initialStatus[endpoint.id] = { status: 'idle' }
     })
     setApiStatus(initialStatus)
@@ -1086,12 +1088,24 @@ function APITestingSection() {
     }
 
     setCheckingAll(true)
-    const promises = endpoints.map(endpoint => checkEndpointStatus(endpoint.id))
+    // Only check GET endpoints for API status monitoring
+    const getEndpoints = endpoints.filter(endpoint => endpoint.method === 'GET')
+    const promises = getEndpoints.map(endpoint => checkEndpointStatus(endpoint.id))
     await Promise.all(promises)
     setCheckingAll(false)
   }
 
   const endpoints = [
+    {
+      id: 'health-check',
+      method: 'GET',
+      path: '/api/health',
+      title: 'Health Check',
+      description: 'Check API health status.',
+      hasParams: false,
+      hasBody: false,
+      testable: true
+    },
     {
       id: 'reservations-get',
       method: 'GET',
@@ -1099,7 +1113,8 @@ function APITestingSection() {
       title: 'Get All Reservations',
       description: 'Retrieve a paginated list of all reservations with filtering and sorting options.',
       hasParams: true,
-      hasBody: false
+      hasBody: false,
+      testable: true
     },
     {
       id: 'reservations-create',
@@ -1108,7 +1123,8 @@ function APITestingSection() {
       title: 'Create Reservation',
       description: 'Create a new table reservation with validation and availability checking.',
       hasParams: false,
-      hasBody: true
+      hasBody: true,
+      testable: false
     },
     {
       id: 'reservations-availability',
@@ -1117,7 +1133,8 @@ function APITestingSection() {
       title: 'Check Availability',
       description: 'Check if a specific time slot is available for a given number of guests.',
       hasParams: true,
-      hasBody: false
+      hasBody: false,
+      testable: false
     },
     {
       id: 'menu-get',
@@ -1126,7 +1143,8 @@ function APITestingSection() {
       title: 'Get Menu Items',
       description: 'Retrieve menu items with advanced filtering, search, and pagination.',
       hasParams: true,
-      hasBody: false
+      hasBody: false,
+      testable: true
     },
     {
       id: 'menu-public',
@@ -1135,7 +1153,8 @@ function APITestingSection() {
       title: 'Get Public Menu Items',
       description: 'Retrieve public menu items for landing page (only available items).',
       hasParams: true,
-      hasBody: false
+      hasBody: false,
+      testable: true
     },
     {
       id: 'menu-categories',
@@ -1144,7 +1163,8 @@ function APITestingSection() {
       title: 'Get Categories',
       description: 'Retrieve all available menu categories.',
       hasParams: false,
-      hasBody: false
+      hasBody: false,
+      testable: true
     },
     {
       id: 'auth-register',
@@ -1153,7 +1173,8 @@ function APITestingSection() {
       title: 'User Registration',
       description: 'Register a new user account.',
       hasParams: false,
-      hasBody: true
+      hasBody: true,
+      testable: false
     },
     {
       id: 'auth-login',
@@ -1162,7 +1183,8 @@ function APITestingSection() {
       title: 'User Login',
       description: 'Authenticate user and get JWT token.',
       hasParams: false,
-      hasBody: true
+      hasBody: true,
+      testable: false
     },
     {
       id: 'auth-profile',
@@ -1171,7 +1193,8 @@ function APITestingSection() {
       title: 'Get User Profile',
       description: 'Get current user profile information.',
       hasParams: false,
-      hasBody: false
+      hasBody: false,
+      testable: false
     },
     {
       id: 'contact-create',
@@ -1180,16 +1203,8 @@ function APITestingSection() {
       title: 'Submit Contact Form',
       description: 'Submit a new contact form with customer inquiry or feedback.',
       hasParams: false,
-      hasBody: true
-    },
-    {
-      id: 'health-check',
-      method: 'GET',
-      path: '/api/health',
-      title: 'Health Check',
-      description: 'Check API health status.',
-      hasParams: false,
-      hasBody: false
+      hasBody: true,
+      testable: false
     }
   ]
 
