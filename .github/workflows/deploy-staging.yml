@@ -34,10 +34,10 @@ jobs:
       BASE_API_URL: '/api'
       NGINX_PORT: 88
     steps:
-      # - name: Fix permissions
-      #   run: |
-      #     sudo chown -R gh-runner:gh-runner /home/gh-runner/actions-runner/_work
-      #     sudo chmod -R u+rwX /home/gh-runner/actions-runner/_work
+      - name: Fix permissions
+        run: |
+          sudo chown -R gh-runner:gh-runner /home/gh-runner/actions-runner/_work
+          sudo chmod -R u+rwX /home/gh-runner/actions-runner/_work
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
