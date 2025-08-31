@@ -1,26 +1,27 @@
-FROM node:18-alpine
+FROM node:20-alpine
+
+# Install pnpm globally
+RUN npm install -g pnpm
 
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-COPY pnpm-lock.yaml ./
-
-# Install pnpm
-RUN npm install -g pnpm
+COPY apps/api/package.json ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --prod
 
 # Copy source code
-COPY . .
+COPY apps/api ./
 
-# Expose port
-EXPOSE 5001
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+# Change ownership of the app directory
+RUN chown -R nodejs:nodejs /app
+USER nodejs
 
-# Start the application
+EXPOSE 5000
+
 CMD ["pnpm", "start"]

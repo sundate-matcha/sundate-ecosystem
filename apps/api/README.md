@@ -39,7 +39,7 @@ A comprehensive Express.js backend API for the Sundate Matcha website, featuring
    ```env
    PORT=5000
    NODE_ENV=development
-   MONGO_URI=mongodb://localhost:27017/sundate-cafe
+   MONGO_URI=mongodb://localhost:27017/sundate
    FRONTEND_URL=http://localhost:3000
    JWT_SECRET=your-super-secret-jwt-key-here
    ```

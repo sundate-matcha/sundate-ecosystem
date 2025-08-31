@@ -14,12 +14,12 @@ This project includes Docker configurations for all sub-apps (excluding mobile) 
 sundate-ecosystem/
 ├── apps/
 │   ├── api/          # Backend API (Node.js/Express)
-│   ├── web/          # Web Frontend (Next.js)
 │   ├── docs/         # Documentation Site (Next.js)
 │   └── mobile/       # Mobile App (React Native - not containerized)
-├── docker-compose.yml        # Production setup
-├── docker-compose.dev.yml    # Development setup
-└── DOCKER_README.md         # This file
+├── nginx/             # Nginx configuration
+├── scripts/           # Test and utility scripts
+├── docker-compose.yml # Production setup
+└── DOCKER_README.md  # This file
 ```
 
 ## Quick Start
@@ -43,19 +43,41 @@ sundate-ecosystem/
 
 ### Production Environment
 
-1. **Start all services:**
+1. **Add domain to hosts file (for local testing):**
+   ```bash
+   # Add this line to your hosts file:
+   # Windows: C:\Windows\System32\drivers\etc\hosts
+   # Linux/Mac: /etc/hosts
+   127.0.0.1 sundate.justdemo.work
+   ```
+
+2. **Start all services:**
    ```bash
    docker-compose up -d
    ```
 
-2. **View logs:**
+3. **View logs:**
    ```bash
    docker-compose logs -f
    ```
 
-3. **Stop all services:**
+4. **Stop all services:**
    ```bash
    docker-compose down
+   ```
+
+5. **Access your applications:**
+   - **Docs (Root):** http://sundate.justdemo.work:88
+   - **API:** http://sundate.justdemo.work:88/api
+   - **Health Check:** http://sundate.justdemo.work:88/health
+
+6. **Test Setup:**
+   ```bash
+   # Windows PowerShell
+   .\scripts\test-docker.ps1
+   
+   # Linux/Mac
+   ./scripts/test-docker.sh
    ```
 
 ## Services
@@ -64,22 +86,25 @@ sundate-ecosystem/
 - **Port:** 27017
 - **Username:** admin
 - **Password:** password123
-- **Database:** sundate-cafe
+- **Database:** sundate
 
 ### API Backend
-- **Port:** 5001
+- **Port:** 5001 (internal)
 - **Health Check:** http://localhost:5001/api/health
 - **Dependencies:** MongoDB
-
-### Web Frontend
-- **Port:** 3000
-- **Health Check:** http://localhost:3000
-- **Dependencies:** API Backend
+- **External Access:** http://sundate.justdemo.work:88/api
 
 ### Documentation Site
-- **Port:** 3001
-- **Health Check:** http://localhost:3001
+- **Port:** 3001 (internal)
+- **Health Check:** http://localhost:3001/api/health
 - **Dependencies:** None
+- **External Access:** http://sundate.justdemo.work:88
+
+### Nginx Reverse Proxy
+- **Port:** 88 (external), 80 (internal)
+- **Health Check:** http://localhost/health
+- **Dependencies:** Documentation Site, API Backend
+- **Domain:** sundate.justdemo.work
 
 ## Individual App Building
 
@@ -90,12 +115,7 @@ docker build -t sundate-api .
 docker run -p 5001:5001 sundate-api
 ```
 
-### Build Web Image
-```bash
-cd apps/web
-docker build -t sundate-web .
-docker run -p 3000:3000 sundate-web
-```
+
 
 ### Build Docs Image
 ```bash
@@ -111,10 +131,7 @@ docker run -p 3001:3001 sundate-docs
 - `PORT`: Server port (default: 5001)
 - `MONGO_URI`: MongoDB connection string
 
-### Web Frontend
-- `NODE_ENV`: Environment (development/production)
-- `PORT`: Server port (default: 3000)
-- `NEXT_PUBLIC_API_URL`: API backend URL
+
 
 ### Documentation Site
 - `NODE_ENV`: Environment (development/production)
@@ -139,8 +156,8 @@ docker run -p 3001:3001 sundate-docs
 ### Common Issues
 
 1. **Port conflicts:**
-   - Ensure ports 27017, 3000, 3001, and 5001 are available
-   - Stop other services using these ports
+   - Ensure port 88 is available
+   - Stop other services using port 88
 
 2. **MongoDB connection issues:**
    - Wait for MongoDB to be healthy before starting API

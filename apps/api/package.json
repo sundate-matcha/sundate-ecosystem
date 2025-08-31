@@ -1,13 +1,12 @@
 {
   "name": "sundate-api",
-  "version": "1.0.0",
+  "version": "1.1.5",
   "description": "Sundate Matcha API backend",
   "main": "src/server.js",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "build": "tsc",
     "test": "jest",
     "create-admin": "node scripts/create-admin.js"
   },

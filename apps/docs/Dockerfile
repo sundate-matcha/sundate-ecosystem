@@ -1,58 +1,55 @@
-FROM node:18-alpine AS base
+FROM node:22-alpine
 
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-COPY pnpm-lock.yaml ./
-
-# Install pnpm
+# Install pnpm globally
 RUN npm install -g pnpm
 
-# Install dependencies
+WORKDIR /app
+
+# Copy workspace configuration files first
+COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+COPY package.json ./
+COPY turbo.json ./
+
+# Copy package.json files for all apps and packages
+COPY apps/docs/package.json ./apps/docs/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/eslint-config/package.json ./packages/eslint-config/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
+
+# Install dependencies (this will resolve workspace dependencies)
 RUN pnpm install --frozen-lockfile
 
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# Copy source code
+COPY apps/docs ./apps/docs
 
-# Build the application
-RUN npm install -g pnpm
-RUN pnpm build
+# Copy shared packages
+COPY packages ./packages
 
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
+# Verify the build environment
+RUN ls -la apps/docs/
+RUN ls -la packages/
+
+# Build the Next.js application directly from the docs directory
+RUN cd apps/docs && pnpm run build
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Change ownership of the app directory
+RUN chown -R nodejs:nodejs /app
+# USER nodejs
+
+EXPOSE 3000
 
 ENV NODE_ENV production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
-EXPOSE 3001
-
-ENV PORT 3001
-ENV HOSTNAME "0.0.0.0"
+# Change to the docs app directory for runtime
+WORKDIR /app/apps/docs
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-CMD ["node", "server.js"]
+CMD ["pnpm", "start"]
