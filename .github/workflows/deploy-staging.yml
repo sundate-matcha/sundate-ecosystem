@@ -38,6 +38,7 @@ jobs:
         run: |
           sudo chown -R gh-runner:gh-runner /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
           sudo chmod -R u+rwX /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
+
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
