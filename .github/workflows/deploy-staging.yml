@@ -34,15 +34,14 @@ jobs:
       BASE_API_URL: '/api'
       NGINX_PORT: 88
     steps:
-      # - name: Fix permissions
-      #   run: |
-      #     sudo chown -R gh-runner:gh-runner /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
-      #     sudo chmod -R u+rwX /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
+      - name: Fix permissions
+        run: |
+          sudo chown -R gh-runner:gh-runner /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
+          sudo chmod -R u+rwX /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
