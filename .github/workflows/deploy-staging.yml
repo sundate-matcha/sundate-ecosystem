@@ -47,7 +47,6 @@ jobs:
           JWT_SECRET=${{ env.JWT_SECRET }}
           JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
           EOF
-          - name: Create api .env from GitHub Secrets
       - name: Create nginx .env
         run: |
           cat <<EOF > nginx/.env
