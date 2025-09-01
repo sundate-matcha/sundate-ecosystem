@@ -57,8 +57,11 @@ jobs:
 
       - name: Move workspace under /home for Docker
         run: |
-          mkdir -p /home/gh-runner/workspace
-          rsync -a --delete $GITHUB_WORKSPACE/ /home/gh-runner/workspace/
+          # One time action to create the workspace directory
+          # sudo mkdir -p /home/gh-runner/workspace
+          # sudo chown -R gh-runner:gh-runner /home/gh-runner/workspace
+          # sudo chmod -R u+rwX /home/gh-runner/workspace
+          sudo rsync -a --delete $GITHUB_WORKSPACE/ /home/gh-runner/workspace/
           cd /home/gh-runner/workspace
 
       - name: Build API Application
