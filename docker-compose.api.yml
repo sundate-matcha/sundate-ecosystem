@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.standalone
+    container_name: sundate-api
+    # restart: unless-stopped
+    env_file:
+      - ./apps/api/.env
+    # ports:
+    #   - '5001:5001'
+    networks:
+      - sundate-network
+    # healthcheck:
+    #   test: ['CMD', 'bash', '-c', 'echo > /dev/tcp/localhost/5001']
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  nginx:
+    image: nginx:alpine
+    container_name: sundate-nginx
+    # restart: unless-stopped
+    env_file:
+      - ./nginx/.env
+    ports:
+      - '${NGINX_PORT:-88}:80'
+    volumes:
+      - ./nginx/default.api.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - sundate-network
+
+networks:
+  sundate-network:
+    driver: bridge

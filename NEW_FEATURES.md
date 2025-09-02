@@ -89,7 +89,7 @@ npm run create-admin
 
 This creates a default admin user:
 - Username: `admin`
-- Email: `admin@sundate-cafe.com`
+- Email: `admin@sundate.com`
 - Password: `admin123`
 - Role: `admin`
 

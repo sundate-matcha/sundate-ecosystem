@@ -8,7 +8,7 @@ dotenv.config();
 const createAdminUser = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sundate-cafe');
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sundate');
     console.log('Connected to MongoDB');
 
     // Check if admin user already exists
@@ -21,7 +21,7 @@ const createAdminUser = async () => {
     // Create admin user
     const adminUser = new User({
       username: 'admin',
-      email: 'admin@sundate-cafe.com',
+      email: 'admin@sundate.com',
       password: 'admin123',
       firstName: 'Admin',
       lastName: 'User',
@@ -32,7 +32,7 @@ const createAdminUser = async () => {
     await adminUser.save();
     console.log('Admin user created successfully:');
     console.log('Username: admin');
-    console.log('Email: admin@sundate-cafe.com');
+    console.log('Email: admin@sundate.com');
     console.log('Password: admin123');
     console.log('Role: admin');
 

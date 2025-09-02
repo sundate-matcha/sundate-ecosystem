@@ -19,6 +19,7 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { API_URL } from '@/lib/constants'
 
 const sections = [
   { id: 'overview', label: 'Overview', icon: BookOpen, level: 0 },
@@ -92,7 +93,7 @@ function HomePageContent() {
         router.replace(`?${params.toString()}`)
       }
     }
-  }, [searchParams, router, sections])
+  }, [searchParams, router])
 
   // Update document title based on current section
   useEffect(() => {
@@ -342,9 +343,7 @@ function OverviewSection() {
             </div>
             <div>
               <h4 className="font-semibold text-neutral-900 dark:text-white">Base URL</h4>
-              <code className="text-sm bg-neutral-100 dark:bg-neutral-700 px-2 py-1 rounded">
-                {process.env.NEXT_PUBLIC_API_URL}
-              </code>
+              <code className="text-sm bg-neutral-100 dark:bg-neutral-700 px-2 py-1 rounded">{API_URL}</code>
             </div>
           </div>
           <div className="flex items-start space-x-3">
@@ -415,11 +414,11 @@ function ReservationsSection() {
             { name: 'sortOrder', type: 'string', description: 'Sort order: asc/desc (default: asc)' }
           ]}
           responseExample={`{
-  "reservations": [...],
-  "totalPages": 5,
-  "currentPage": 1,
-  "total": 48
-}`}
+            "reservations": [...],
+            "totalPages": 5,
+            "currentPage": 1,
+            "total": 48
+          }`}
         />
 
         <EndpointCard
@@ -448,10 +447,10 @@ function ReservationsSection() {
             }
           ]}
           responseExample={`{
-  "message": "Reservation created successfully",
-  "reservation": {...},
-  "confirmationNumber": "ABC12345"
-}`}
+            "message": "Reservation created successfully",
+            "reservation": {...},
+            "confirmationNumber": "ABC12345"
+          }`}
         />
 
         <EndpointCard
@@ -465,13 +464,13 @@ function ReservationsSection() {
             { name: 'guests', type: 'number', required: true, description: 'Number of guests' }
           ]}
           responseExample={`{
-  "date": "2024-01-15",
-  "time": "7:00 PM",
-  "guests": 4,
-  "available": true,
-  "currentOccupancy": 12,
-  "remainingCapacity": 8
-}`}
+            "date": "2024-01-15",
+            "time": "7:00 PM",
+            "guests": 4,
+            "available": true,
+            "currentOccupancy": 12,
+            "remainingCapacity": 8
+          }`}
         />
       </div>
     </div>
@@ -505,12 +504,12 @@ function MenuSection() {
             { name: 'isFeatured', type: 'boolean', description: 'Filter featured items' }
           ]}
           responseExample={`{
-  "menuItems": [...],
-  "totalPages": 3,
-  "currentPage": 1,
-  "total": 45,
-  "filters": {...}
-}`}
+            "menuItems": [...],
+            "totalPages": 3,
+            "currentPage": 1,
+            "total": 45,
+            "filters": {...}
+          }`}
         />
 
         <EndpointCard
@@ -520,13 +519,13 @@ function MenuSection() {
           description="Retrieve all available menu categories."
           parameters={[]}
           responseExample={`[
-  "Breakfast",
-  "Lunch", 
-  "Dinner",
-  "Beverages",
-  "Desserts",
-  "Appetizers"
-]`}
+            "Breakfast",
+            "Lunch", 
+            "Dinner",
+            "Beverages",
+            "Desserts",
+            "Appetizers"
+          ]`}
         />
 
         <EndpointCard
@@ -536,14 +535,14 @@ function MenuSection() {
           description="Retrieve all featured menu items."
           parameters={[]}
           responseExample={`[
-  {
-    "id": "...",
-    "name": "Grilled Salmon",
-    "description": "...",
-    "price": 28.99,
-    "isFeatured": true
-  }
-]`}
+            {
+              "id": "...",
+              "name": "Grilled Salmon",
+              "description": "...",
+              "price": 28.99,
+              "isFeatured": true
+            }
+          ]`}
         />
 
         <EndpointCard
@@ -564,20 +563,20 @@ function MenuSection() {
             { name: 'sortOrder', type: 'string', description: 'Sort order: asc/desc (default: asc)' }
           ]}
           responseExample={`{
-  "menuItems": [
-    {
-      "id": "...",
-      "name": "Grilled Salmon",
-      "description": "...",
-      "price": 28.99,
-      "category": "Dinner"
-    }
-  ],
-  "totalPages": 3,
-  "currentPage": 1,
-  "total": 45,
-  "filters": {...}
-}`}
+            "menuItems": [
+              {
+                "id": "...",
+                "name": "Grilled Salmon",
+                "description": "...",
+                "price": 28.99,
+                "category": "Dinner"
+              }
+            ],
+            "totalPages": 3,
+            "currentPage": 1,
+            "total": 45,
+            "filters": {...}
+          }`}
         />
       </div>
     </div>
@@ -916,7 +915,7 @@ function AuthenticationSection() {
           <div>
             <h3 className="font-semibold text-neutral-900 dark:text-white mb-2">Example Request</h3>
             <pre className="text-sm bg-neutral-100 dark:bg-neutral-700 p-4 rounded overflow-x-auto">
-              {`curl -X GET "https://api.sundate-cafe.com/api/auth/profile" \\
+              {`curl -X GET "https://api.sundate.com/api/auth/profile" \\
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \\
   -H "Content-Type: application/json"`}
             </pre>
@@ -930,9 +929,9 @@ function AuthenticationSection() {
           To obtain an API key, please contact our development team or visit the developer portal.
         </p>
         <ul className="text-yellow-700 dark:text-yellow-300 space-y-2">
-          <li>• Email: dev@sundate-cafe.com</li>
-          <li>• Developer Portal: https://dev.sundate-cafe.com</li>
-          <li>• Support: https://support.sundate-cafe.com</li>
+          <li>• Email: dev@sundate.com</li>
+          <li>• Developer Portal: https://dev.sundate.com</li>
+          <li>• Support: https://support.sundate.com</li>
         </ul>
       </div>
     </div>
@@ -1141,7 +1140,7 @@ const endpoints = [
 function APITestingSection({ activeSection }: { activeSection: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [apiBaseUrl, setApiBaseUrl] = useState(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001')
+  const [apiBaseUrl, setApiBaseUrl] = useState(API_URL)
   const [response, setResponse] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
