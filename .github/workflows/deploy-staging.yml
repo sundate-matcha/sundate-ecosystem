@@ -27,11 +27,6 @@ jobs:
       BASE_API_URL: '/api'
       NGINX_PORT: 88
     steps:
-      # - name: Fix permissions
-      #   run: |
-      #     sudo chown -R gh-runner:gh-runner /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
-      #     sudo chmod -R u+rwX /opt/gh-runner/actions-runner-${{ env.PROJECT_NAME }}/_work
-
       - uses: actions/checkout@v4
       # - uses: actions/setup-node@v4
       #   with:
@@ -55,14 +50,14 @@ jobs:
           NGINX_DOMAIN=${{ env.PROJECT_NAME }}.${{ env.ORIGIN_SERVER_NAME }}
           EOF
 
-      - name: Move workspace under /home for Docker
-        run: |
-          # One time action to create the workspace directory
-          # sudo mkdir -p /home/gh-runner/workspace
-          # sudo chown -R gh-runner:gh-runner /home/gh-runner/workspace
-          # sudo chmod -R u+rwX /home/gh-runner/workspace
-          sudo rsync -a --delete $GITHUB_WORKSPACE/ /home/gh-runner/workspace/
-          cd /home/gh-runner/workspace
+      # - name: Move workspace under /home for Docker
+      #   run: |
+      #     # One time action to create the workspace directory
+      #     # sudo mkdir -p /home/gh-runner/workspace
+      #     # sudo chown -R gh-runner:gh-runner /home/gh-runner/workspace
+      #     # sudo chmod -R u+rwX /home/gh-runner/workspace
+      #     sudo rsync -a --delete $GITHUB_WORKSPACE/ /home/gh-runner/workspace/
+      #     cd /home/gh-runner/workspace
 
       - name: Build API Application
         run: docker-compose -f docker-compose.api.yml up --build -d
