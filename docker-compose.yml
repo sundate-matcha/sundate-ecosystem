@@ -1,55 +1,32 @@
-version: '3.9'
+version: '3'
 services:
   api:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    container_name: sundate-api
+    container_name: api
     restart: unless-stopped
     env_file:
       - ./apps/api/.env
     networks:
-      - sundate-network
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'node',
-          '-e',
-          "require('http').get('http://localhost:5000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+      - sundate_network
 
   docs:
+    container_name: docs
     build:
       context: .
       dockerfile: apps/docs/Dockerfile
-    container_name: sundate-docs
     restart: unless-stopped
-    # env_file is optional for docs since it doesn't require environment variables
-    # env_file:
-    #   - ./apps/docs/.env
+    env_file:
+      - ./apps/docs/.env
+    ports:
+      - 3000:3000
     networks:
-      - sundate-network
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'node',
-          '-e',
-          "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+      - sundate_network
 
   nginx:
     image: nginx:alpine
-    container_name: sundate-nginx
+    container_name: nginx
     restart: unless-stopped
     ports:
       - '${NGINX_PORT:-80}:80'
@@ -57,12 +34,12 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       docs:
-        condition: service_healthy
+        condition: service_started
       api:
-        condition: service_healthy
+        condition: service_started
     networks:
-      - sundate-network
+      - sundate_network
 
 networks:
-  sundate-network:
+  sundate_network:
     driver: bridge
