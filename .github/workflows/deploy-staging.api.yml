@@ -2,9 +2,9 @@ name: 🚀 Deploy as a Staging Environment | Dellbuntu
 
 on:
   push:
-    branches: ['staging']
+    branches: ['staging/api']
   pull_request:
-    branches: ['staging']
+    branches: ['staging/api']
 
 permissions:
   contents: read
@@ -14,7 +14,6 @@ env:
   ORIGIN_SERVER_NAME: 'justdemo.work'
   PROJECT_NAME: 'sundate'
   IMAGE_NAME_API: 'api'
-  IMAGE_NAME_DOCS: 'docs'
   REGISTRY: ghcr.io # Use GitHub Container Registry (or Docker Hub if you prefer)
 
 jobs:
@@ -32,7 +31,7 @@ jobs:
       - name: Build and push API image
         run: |
           IMAGE=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_API }}:staging
-          docker build -t $IMAGE -f apps/api/Dockerfile.standalone .
+          docker build -t $IMAGE -f Dockerfile.standalone ./apps/api
           docker push $IMAGE
 
       # 3. SSH into server and deploy via docker-compose
@@ -78,5 +77,5 @@ jobs:
             EOF
 
             # Pull latest image & restart via docker-compose
-            docker-compose pull
-            docker-compose up -d --remove-orphans
+            docker-compose -f docker-compose.api.yml pull
+            docker-compose -f docker-compose.api.yml up -d --remove-orphans

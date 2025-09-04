@@ -1,26 +1,35 @@
 version: '3'
 services:
   api:
+    restart: unless-stopped
+    container_name: api
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    container_name: api
-    restart: unless-stopped
     env_file:
       - ./apps/api/.env
     networks:
       - sundate_network
 
   docs:
+    restart: unless-stopped
     container_name: docs
     build:
       context: .
       dockerfile: apps/docs/Dockerfile
-    restart: unless-stopped
     env_file:
       - ./apps/docs/.env
-    ports:
-      - 3000:3000
+    networks:
+      - sundate_network
+
+  dashboard:
+    restart: unless-stopped
+    container_name: dashboard
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+    env_file:
+      - ./apps/dashboard/.env
     networks:
       - sundate_network
 
@@ -42,4 +51,6 @@ services:
 
 networks:
   sundate_network:
-    driver: bridge
+    # driver: bridge
+    # define as external to use the same network as the other services
+    external: true

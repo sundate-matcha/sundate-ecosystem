@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
+    "build": "echo 'API build completed - no build step needed for Node.js'",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest",
