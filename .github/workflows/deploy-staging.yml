@@ -31,7 +31,7 @@ jobs:
       - name: Build and push API image
         run: |
           IMAGE=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_API }}:staging
-          docker build -t $IMAGE -f docker-compose.api.dockerfile ./apps/api
+          docker build -t $IMAGE -f Dockerfile.standalone ./apps/api
           docker push $IMAGE
 
       # 3. SSH into server and deploy via docker-compose
