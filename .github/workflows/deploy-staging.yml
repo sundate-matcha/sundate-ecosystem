@@ -6,58 +6,76 @@ on:
       - staging
 
 permissions:
-  actions: write
   contents: read
+  packages: write
 
 env:
   ORIGIN_SERVER_NAME: 'justdemo.work'
   PROJECT_NAME: 'sundate'
   IMAGE_NAME_API: 'api'
   IMAGE_NAME_DOCS: 'docs'
-  # No need to deploy mobile app, just build it
+  REGISTRY: ghcr.io # Use GitHub Container Registry (or Docker Hub if you prefer)
 
 jobs:
-  deploy-api:
-    name: Deploy API Application
-    runs-on: [self-hosted, dellbuntu]
-    env:
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-      BASE_API_URL: '/api'
-      NGINX_PORT: 88
+  build-and-deploy:
+    runs-on: ubuntu-latest # ✅ GitHub-hosted runner
     steps:
       - uses: actions/checkout@v4
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '22'
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
 
-      - name: Create api .env from GitHub Secrets
+      # 1. Authenticate to container registry
+      - name: Log in to GitHub Container Registry
+        # ✅ Use GitHub token to authenticate to container registry instead of personal access token (the GITHUB_TOKEN is an auto-generated key by GitHub)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      # 2. Build & push API image
+      - name: Build and push API image
         run: |
-          cat <<EOF > apps/api/.env
-          MONGO_URI=${{ env.MONGO_URI }}
-          BASE_API_URL=${{ env.BASE_API_URL }}
-          JWT_SECRET=${{ env.JWT_SECRET }}
-          JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
-          EOF
+          IMAGE=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_API }}:staging
+          docker build -t $IMAGE -f docker-compose.api.dockerfile ./apps/api
+          docker push $IMAGE
 
-      - name: Create nginx .env
-        run: |
-          cat <<EOF > nginx/.env
-          NGINX_PORT=${{ env.NGINX_PORT }}
-          NGINX_DOMAIN=${{ env.PROJECT_NAME }}.${{ env.ORIGIN_SERVER_NAME }}
-          EOF
+      # 3. SSH into server and deploy via docker-compose
+      - name: Deploy on server with docker-compose
+        # ✅ Use appleboy/ssh-action to SSH into server and deploy via docker-compose
+        uses: appleboy/ssh-action@v1.1.0
+        env:
+          # SSH - Organization secrets
+          STAGING_HOST: ${{ secrets.STAGING_HOST }}
+          STAGING_USER: ${{ secrets.STAGING_USER }}
+          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          # API - Repository secrets
+          BASE_API_URL: ${{ secrets.BASE_API_URL }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          # JWT - Repository secrets
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          # Nginx - Repository secrets
+          NGINX_PORT: ${{ secrets.NGINX_PORT }}
+          NGINX_DOMAIN: ${{ secrets.NGINX_DOMAIN }}
+        with:
+          host: ${{ env.STAGING_HOST }}
+          username: ${{ env.STAGING_USER }}
+          key: ${{ env.STAGING_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/apps/${{ env.PROJECT_NAME }}
 
-      # - name: Move workspace under /home for Docker
-      #   run: |
-      #     # One time action to create the workspace directory
-      #     # sudo mkdir -p /home/gh-runner/workspace
-      #     # sudo chown -R gh-runner:gh-runner /home/gh-runner/workspace
-      #     # sudo chmod -R u+rwX /home/gh-runner/workspace
-      #     sudo rsync -a --delete $GITHUB_WORKSPACE/ /home/gh-runner/workspace/
-      #     cd /home/gh-runner/workspace
+            # Log in to registry from server
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
 
-      - name: Build API Application
-        run: docker-compose -f docker-compose.api.yml up --build -d
+            # Update environment files if needed
+            cat <<EOF > apps/api/.env
+            MONGO_URI=${{ env.MONGO_URI }}
+            JWT_SECRET=${{ env.JWT_SECRET }}
+            JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
+            BASE_API_URL=${{ env.BASE_API_URL }}
+            EOF
+
+            cat <<EOF > nginx/.env
+            NGINX_PORT=${{ env.NGINX_PORT }}
+            NGINX_DOMAIN=${{ env.PROJECT_NAME }}.${{ env.ORIGIN_SERVER_NAME }}
+            EOF
+
+            # Pull latest image & restart via docker-compose
+            docker-compose -f docker-compose.api.yml pull
+            docker-compose -f docker-compose.api.yml up -d --remove-orphans
