@@ -52,7 +52,7 @@ const reservationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'cancelled', 'completed'],
+    enum: ['pending', 'confirmed', 'cancelled', 'completed'], // confirmed is the automated status after notification is sent
     default: 'pending'
   },
   tableNumber: {
