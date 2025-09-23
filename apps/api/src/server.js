@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
+import env from './config/env.js'
 
 // Import routes
 import reservationRoutes from './routes/reservations.js'
@@ -16,8 +17,8 @@ import authRoutes from './routes/auth.js'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 5001
-const BASE_URL = process.env.BASE_API_URL || '/api'
+const PORT = env.PORT || 5001
+const BASE_URL = env.BASE_API_URL || '/api'
 
 // Security middleware
 app.use(helmet())
@@ -45,7 +46,7 @@ app.use(morgan('combined'))
 // MongoDB connection
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI)
+    const conn = await mongoose.connect(env.MONGO_URI)
     console.log(`MongoDB Connected: ${conn.connection.host}`)
   } catch (error) {
     console.error('Error connecting to MongoDB:', error.message)
@@ -73,7 +74,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack)
   res.status(500).json({
     error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    message: env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   })
 })
 
@@ -87,7 +88,7 @@ const startServer = async () => {
   await connectDB()
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`)
-    console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`)
+    console.log(`📱 Environment: ${env.NODE_ENV}`)
     console.log(`🌐 Health check: http://localhost:${PORT}${BASE_URL}/health`)
   })
 }
