@@ -1,34 +1,49 @@
-export const TABLE_CATEGORY_STATUS = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive'
+export const DEFAULT_ADMIN_USER = {
+  username: 'admin',
+  email: 'admin@sundate.com',
+  password: 'admin123',
+  firstName: 'Admin',
+  lastName: 'User',
+  role: 'admin',
+  phone: '+1234567890'
 }
-export const TABLE_CATEGORIES = [
+
+export const DEFAULT_TABLE_CATEGORIES = [
   {
-    name: 'Bar table',
-    description: 'Bar table',
-    price: 10,
-    capacity: 2,
-    totalTables: 1,
-    available: 1,
-    image: '/images/bar-table.jpg',
+    name: 'Bàn quầy Bar',
+    description: 'Bàn quầy Bar',
+    thumbnail: '/images/default.jpg',
+    gallery: [],
+    price: 0,
+    capacity: 4,
     isActive: true
   },
   {
-    name: 'Bar table',
-    description: 'Bar table',
-    price: 10,
-    capacity: 2,
-    available: 1,
-    image: '/images/bar-table.jpg',
+    name: 'Bàn dài',
+    description: 'Bàn dài',
+    thumbnail: '/images/default.jpg',
+    gallery: [],
+    price: 0,
+    capacity: 1,
     isActive: true
   },
   {
-    name: 'Bar table',
-    description: 'Bar table',
-    price: 10,
+    name: 'Bàn cửa sổ',
+    description: 'Bàn cửa sổ',
+    thumbnail: '/images/default.jpg',
+    gallery: [],
+    price: 0,
     capacity: 2,
-    available: 1,
-    image: '/images/bar-table.jpg',
+    isActive: true
+  },
+
+  {
+    name: 'Bàn ngoài trời',
+    description: 'Bàn ngoài trời',
+    thumbnail: '/images/default.jpg',
+    gallery: [],
+    price: 0,
+    capacity: 2,
     isActive: true
   }
 ]

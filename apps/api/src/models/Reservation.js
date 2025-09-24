@@ -39,6 +39,19 @@ const reservationSchema = new mongoose.Schema({
     //   message: 'Please select a valid time slot'
     // }
   },
+  start: {
+    type: Date,
+    required: [true, 'Start time is required'],
+  },
+  end: {
+    type: Date,
+    required: [true, 'End time is required'],
+  },
+  tableCategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TableCategory',
+    required: [true, 'Table category is required'],
+  },
   guests: {
     type: Number,
     required: [true, 'Number of guests is required'],
@@ -54,10 +67,6 @@ const reservationSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'confirmed', 'cancelled', 'completed'], // confirmed is the automated status after notification is sent
     default: 'pending'
-  },
-  tableNumber: {
-    type: Number,
-    min: 1
   },
   notes: {
     type: String,

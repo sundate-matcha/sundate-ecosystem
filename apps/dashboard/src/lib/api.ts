@@ -20,6 +20,8 @@ export interface User {
   updatedAt: string;
 }
 
+export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+
 export interface Reservation {
   _id: string;
   name: string;
@@ -29,8 +31,7 @@ export interface Reservation {
   time: string;
   guests: number;
   specialRequests?: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  tableNumber?: number;
+  status: ReservationStatus;
   notes?: string;
   createdAt: string;
   updatedAt: string;

@@ -21,6 +21,17 @@ import {
 import { cn } from '@/lib/utils'
 import { API_URL } from '@/lib/constants'
 
+// Time slot options in 24-hour format
+const TIME_SLOT_OPTIONS = [
+  { value: '18:00', label: '18:00' },
+  { value: '18:30', label: '18:30' },
+  { value: '19:00', label: '19:00' },
+  { value: '19:30', label: '19:30' },
+  { value: '20:00', label: '20:00' },
+  { value: '20:30', label: '20:30' },
+  { value: '21:00', label: '21:00' }
+]
+
 const sections = [
   { id: 'overview', label: 'Overview', icon: BookOpen, level: 0 },
   {
@@ -296,7 +307,7 @@ function OverviewSection() {
           </div>
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Reservations</h3>
           <p className="text-neutral-600 dark:text-neutral-400">
-            Manage table reservations with availability checking, business hours (8:30 AM - 9:00 PM), Sunday closure,
+            Manage table reservations with availability checking, business hours (08:30 - 21:00), Sunday closure,
             and guest management.
           </p>
         </div>
@@ -430,7 +441,7 @@ function ReservationsSection() {
             { name: 'name', type: 'string', required: true, description: 'Customer name (2-100 chars)' },
             { name: 'phone', type: 'string', required: true, description: 'Phone number (required)' },
             { name: 'date', type: 'string', required: true, description: 'Reservation date (ISO 8601, no Sundays)' },
-            { name: 'time', type: 'string', required: true, description: 'Time slot (6:00 PM - 9:00 PM)' },
+            { name: 'time', type: 'string', required: true, description: 'Time slot (18:00 - 21:00)' },
             { name: 'guests', type: 'number', required: true, description: 'Number of guests (1-20)' },
             { name: 'email', type: 'string', required: false, description: 'Customer email (optional)' },
             {
@@ -465,7 +476,7 @@ function ReservationsSection() {
           ]}
           responseExample={`{
             "date": "2024-01-15",
-            "time": "7:00 PM",
+            "time": "19:00",
             "guests": 4,
             "available": true,
             "currentOccupancy": 12,
@@ -1548,13 +1559,11 @@ function APITestingSection({ activeSection }: { activeSection: string }) {
                         required
                         className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer hover:border-neutral-400 dark:hover:border-neutral-500 shadow-sm"
                       >
-                        <option value="6:00 PM">6:00 PM</option>
-                        <option value="6:30 PM">6:30 PM</option>
-                        <option value="7:00 PM">7:00 PM</option>
-                        <option value="7:30 PM">7:30 PM</option>
-                        <option value="8:00 PM">8:00 PM</option>
-                        <option value="8:30 PM">8:30 PM</option>
-                        <option value="9:00 PM">9:00 PM</option>
+                        {TIME_SLOT_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -1782,13 +1791,11 @@ function APITestingSection({ activeSection }: { activeSection: string }) {
                           required
                           className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer hover:border-neutral-400 dark:hover:border-neutral-500 shadow-sm"
                         >
-                          <option value="6:00 PM">6:00 PM</option>
-                          <option value="6:30 PM">6:30 PM</option>
-                          <option value="7:00 PM">7:00 PM</option>
-                          <option value="7:30 PM">7:30 PM</option>
-                          <option value="8:00 PM">8:00 PM</option>
-                          <option value="8:30 PM">8:30 PM</option>
-                          <option value="9:00 PM">9:00 PM</option>
+                          {TIME_SLOT_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     </div>

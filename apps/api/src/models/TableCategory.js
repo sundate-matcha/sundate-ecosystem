@@ -18,10 +18,19 @@ const tableCategorySchema = new mongoose.Schema({
     maxlength: [500, 'Description cannot exceed 500 characters'],
     default: '',
   },
+  thumbnail: {
+    type: String,
+    maxlength: [200, 'Thumbnail cannot exceed 200 characters'],
+    default: '',
+  },
+  gallery: {
+    type: Array,
+    default: [],
+  },
   price: {
     type: Number,
-    required: [true, 'Price is required'],
     min: [0, 'Price cannot be negative'],
+    default: 0,
   },
   capacity: {
     type: Number,
@@ -34,15 +43,6 @@ const tableCategorySchema = new mongoose.Schema({
   //   required: [true, 'Available tables is required'],
   //   min: [0, 'Available tables must be at least 0'],
   // },
-  thumbnail: {
-    type: String,
-    maxlength: [200, 'Thumbnail cannot exceed 200 characters'],
-    default: '',
-  },
-  gallery: {
-    type: Array,
-    default: [],
-  },
   isActive: {
     type: Boolean,
     default: true
