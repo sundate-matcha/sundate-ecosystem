@@ -16,7 +16,7 @@ const validateReservation = [
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
   body('phone')
-    .matches(/^[\+]?[1-9][\d]{0,15}$/)
+    .matches(/^[\+]?[0-9][\d]{10,12}$/)
     .withMessage('Please provide a valid phone number'),
   body('date')
     .isISO8601()
@@ -25,9 +25,6 @@ const validateReservation = [
       const now = new Date();
       if (date <= now) {
         throw new Error('Reservation date must be in the future');
-      }
-      if (date.getDay() === 0) {
-        throw new Error('We are closed on Sundays');
       }
       return true;
     }),

@@ -1,0 +1,63 @@
+name: 🚀 Deploy as a Staging Environment | Dellbuntu
+
+on:
+  push:
+    branches:
+      - staging
+
+permissions:
+  actions: write
+  contents: read
+
+env:
+  ORIGIN_SERVER_NAME: 'justdemo.work'
+  PROJECT_NAME: 'sundate'
+  IMAGE_NAME_API: 'api'
+  IMAGE_NAME_DOCS: 'docs'
+  # No need to deploy mobile app, just build it
+
+jobs:
+  deploy-api:
+    name: Deploy API Application
+    runs-on: [self-hosted, dellbuntu]
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+      BASE_API_URL: '/api'
+      NGINX_PORT: 88
+    steps:
+      - uses: actions/checkout@v4
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '22'
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
+
+      - name: Create api .env from GitHub Secrets
+        run: |
+          cat <<EOF > apps/api/.env
+          MONGO_URI=${{ env.MONGO_URI }}
+          BASE_API_URL=${{ env.BASE_API_URL }}
+          JWT_SECRET=${{ env.JWT_SECRET }}
+          JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
+          EOF
+
+      - name: Create nginx .env
+        run: |
+          cat <<EOF > nginx/.env
+          NGINX_PORT=${{ env.NGINX_PORT }}
+          NGINX_DOMAIN=${{ env.PROJECT_NAME }}.${{ env.ORIGIN_SERVER_NAME }}
+          EOF
+
+      # - name: Move workspace under /home for Docker
+      #   run: |
+      #     # One time action to create the workspace directory
+      #     # sudo mkdir -p /home/gh-runner/workspace
+      #     # sudo chown -R gh-runner:gh-runner /home/gh-runner/workspace
+      #     # sudo chmod -R u+rwX /home/gh-runner/workspace
+      #     sudo rsync -a --delete $GITHUB_WORKSPACE/ /home/gh-runner/workspace/
+      #     cd /home/gh-runner/workspace
+
+      - name: Build API Application
+        run: docker-compose -f docker-compose.api.yml up --build -d

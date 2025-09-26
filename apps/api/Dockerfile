@@ -1,27 +1,27 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Install pnpm
+RUN npm install -g pnpm@10.15.0
 
 WORKDIR /app
 
-# Copy package files
-COPY apps/api/package.json ./
+# Copy root package files for workspace setup
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY turbo.json ./
 
-# Install dependencies
-RUN pnpm install --prod
+# Copy packages directory
+COPY packages/ ./packages/
 
-# Copy source code
-COPY apps/api ./
+# Copy API app
+COPY apps/api/ ./apps/api/
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+# Install dependencies using pnpm
+RUN pnpm install --frozen-lockfile
 
-# Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+# Build the API
+RUN pnpm run build --filter=api
 
-EXPOSE 5000
+EXPOSE 5001
 
-CMD ["pnpm", "start"]
+# Start the API
+CMD ["pnpm", "run", "start", "--filter=api"]

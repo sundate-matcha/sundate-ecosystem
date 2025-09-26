@@ -30,14 +30,29 @@ const reservationSchema = new mongoose.Schema({
       message: 'Reservation date must be in the future'
     }
   },
-  time: {
+  // TODO: the allowed time slots are dynamic, handled by the start and end time from frontend
+  timeSlot: {
     type: String,
-    required: [true, 'Time is required'],
-    // TODO: the allowed time slots are dynamic, so we need to comment this out for now
-    // enum: {
-    //   values: ['6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM'],
-    //   message: 'Please select a valid time slot'
-    // }
+    required: [true, 'Time slot is required'],
+    validate: {
+      validator: function(value) {
+        return value.match(/^[0-9]{2}:[0-9]{2}$/) ;
+      },
+      message: 'Time slot must be in the format HH:mm'
+    }
+  },
+  // start: {
+  //   type: String,
+  //   required: [true, 'Start time is required'],
+  // },
+  // end: {
+  //   type: String,
+  //   required: [true, 'End time is required'],
+  // },
+  tableCategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TableCategory',
+    required: [true, 'Table category is required'],
   },
   guests: {
     type: Number,
@@ -52,12 +67,8 @@ const reservationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'cancelled', 'completed'],
+    enum: ['pending', 'confirmed', 'cancelled', 'completed'], // confirmed is the automated status after notification is sent
     default: 'pending'
-  },
-  tableNumber: {
-    type: Number,
-    min: 1
   },
   notes: {
     type: String,
@@ -86,7 +97,7 @@ reservationSchema.virtual('formattedTime').get(function() {
 });
 
 // Index for efficient queries
-reservationSchema.index({ date: 1, time: 1, status: 1 });
+reservationSchema.index({ date: 1, start: 1, end: 1, status: 1 });
 reservationSchema.index({ email: 1 });
 reservationSchema.index({ status: 1 });
 

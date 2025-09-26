@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../src/models/User.js';
+import { DEFAULT_ADMIN_USER } from '../constants/index.js';
 
 // Load environment variables
 dotenv.config();
@@ -19,15 +20,7 @@ const createAdminUser = async () => {
     }
 
     // Create admin user
-    const adminUser = new User({
-      username: 'admin',
-      email: 'admin@sundate.com',
-      password: 'admin123',
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'admin',
-      phone: '+1234567890'
-    });
+    const adminUser = new User(DEFAULT_ADMIN_USER);
 
     await adminUser.save();
     console.log('Admin user created successfully:');

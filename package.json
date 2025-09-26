@@ -2,14 +2,14 @@
   "name": "sundate-ecosystem",
   "private": true,
   "scripts": {
-    "build": "turbo run build --filter=./apps/api --filter=./apps/docs",
+    "build": "turbo run build --filter=./apps/api --filter=./apps/docs --filter=./apps/dashboard",
     "build:all": "turbo run build",
-    "dev": "turbo run dev --filter=./apps/api --filter=./apps/docs",
+    "dev": "turbo run dev --filter=./apps/api --filter=./apps/docs --filter=./apps/dashboard",
     "dev:all": "turbo run dev",
-    "lint": "turbo run lint --filter=./apps/api --filter=./apps/docs",
+    "lint": "turbo run lint --filter=./apps/api --filter=./apps/docs --filter=./apps/dashboard",
     "lint:all": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types --filter=./apps/api --filter=./apps/docs",
+    "check-types": "turbo run check-types --filter=./apps/api --filter=./apps/docs --filter=./apps/dashboard",
     "check-types:all": "turbo run check-types"
   },
   "devDependencies": {
