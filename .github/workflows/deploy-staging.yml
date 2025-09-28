@@ -3,8 +3,8 @@ name: 🚀 Deploy as a Staging Environment | Dellbuntu
 on:
   push:
     branches: ['staging']
-  pull_request:
-    branches: ['staging']
+  # pull_request:
+  #   branches: ['staging']
 
 permissions:
   contents: read
