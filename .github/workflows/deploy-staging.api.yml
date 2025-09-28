@@ -3,8 +3,8 @@ name: 🚀 Deploy as a Staging Environment | Dellbuntu
 on:
   push:
     branches: ['staging-api']
-  pull_request:
-    branches: ['staging-api']
+  # pull_request:
+  #   branches: ['staging-api']
 
 permissions:
   contents: read
@@ -34,7 +34,14 @@ jobs:
           docker build -t $IMAGE -f ./apps/api/Dockerfile.standalone ./apps/api
           docker push $IMAGE
 
-      # 3. SSH into server and deploy via docker-compose
+      # 3. Test server connectivity
+      - name: Test server connectivity
+        run: |
+          echo "Testing connectivity to ${{ secrets.STAGING_HOST }}"
+          ping -c 3 ${{ secrets.STAGING_HOST }} || echo "Ping failed"
+          nc -zv ${{ secrets.STAGING_HOST }} 22 || echo "Port 22 test failed"
+
+      # 4. SSH into server and deploy via docker-compose
       - name: Deploy on server with docker-compose
         # ✅ Use appleboy/ssh-action to SSH into server and deploy via docker-compose
         uses: appleboy/ssh-action@v1.1.0
@@ -56,6 +63,10 @@ jobs:
           host: ${{ env.STAGING_HOST }}
           username: ${{ env.STAGING_USER }}
           key: ${{ env.STAGING_SSH_KEY }}
+          port: 22
+          timeout: 60s
+          command_timeout: 10m
+          retry: 3
           script: |
             set -e
             cd ~/apps/${{ env.PROJECT_NAME }}
