@@ -3,7 +3,7 @@ name: 🚀 Deploy as a Staging Environment | Dellbuntu
 on:
   push:
     branches:
-      - staging
+      - staging-api
 
 permissions:
   actions: write
