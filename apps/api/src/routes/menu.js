@@ -33,10 +33,6 @@ const validateMenuItem = [
     .optional()
     .isArray()
     .withMessage('Dietary options must be an array'),
-  body('spicyLevel')
-    .optional()
-    .isInt({ min: 0, max: 5 })
-    .withMessage('Spicy level must be between 0 and 5'),
   body('preparationTime')
     .optional()
     .isInt({ min: 1, max: 60 })
@@ -68,7 +64,6 @@ router.get('/', async (req, res) => {
       dietary, 
       maxPrice, 
       minPrice, 
-      spicyLevel,
       isAvailable,
       isFeatured,
       page = 1, 
@@ -101,10 +96,6 @@ router.get('/', async (req, res) => {
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
     
-    // Filter by spicy level
-    if (spicyLevel !== undefined) {
-      query.spicyLevel = parseInt(spicyLevel);
-    }
     
     // Filter by dietary restrictions
     if (dietary) {
@@ -144,7 +135,6 @@ router.get('/', async (req, res) => {
         dietary,
         maxPrice,
         minPrice,
-        spicyLevel,
         isAvailable,
         isFeatured
       }
@@ -184,7 +174,6 @@ router.get('/public', async (req, res) => {
       dietary, 
       maxPrice, 
       minPrice, 
-      spicyLevel,
       page = 1, 
       limit = 20,
       sortBy = 'name',
@@ -205,10 +194,6 @@ router.get('/public', async (req, res) => {
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
     
-    // Filter by spicy level
-    if (spicyLevel !== undefined) {
-      query.spicyLevel = parseInt(spicyLevel);
-    }
     
     // Filter by dietary restrictions
     if (dietary) {
@@ -248,8 +233,7 @@ router.get('/public', async (req, res) => {
         search,
         dietary,
         maxPrice,
-        minPrice,
-        spicyLevel
+        minPrice
       }
     });
     

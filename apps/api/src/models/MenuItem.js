@@ -48,16 +48,6 @@ const menuItemSchema = new mongoose.Schema({
     enum: ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free', 'Halal', 'Kosher'],
     message: 'Please select valid dietary options'
   }],
-  spicyLevel: {
-    type: Number,
-    min: 0,
-    max: 5,
-    default: 0,
-    validate: {
-      validator: Number.isInteger,
-      message: 'Spicy level must be an integer'
-    }
-  },
   preparationTime: {
     type: Number,
     min: 1,
@@ -107,11 +97,6 @@ menuItemSchema.virtual('formattedPrice').get(function() {
   return `$${this.price.toFixed(2)}`;
 });
 
-// Virtual for spicy level description
-menuItemSchema.virtual('spicyDescription').get(function() {
-  const levels = ['Not Spicy', 'Mild', 'Medium', 'Hot', 'Very Hot', 'Extreme'];
-  return levels[this.spicyLevel] || 'Not Spicy';
-});
 
 // Index for efficient queries
 menuItemSchema.index({ category: 1, isAvailable: 1 });

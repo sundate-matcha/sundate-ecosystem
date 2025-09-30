@@ -13,7 +13,7 @@ This document outlines the new features that have been implemented for the Sunda
 
 ### Public Landing Page Endpoint
 - **Public Menu Items** (`GET /api/menu/public`) - Public access, shows only available items
-  - Filtering by category, price range, spicy level, dietary restrictions
+  - Filtering by category, price range, dietary restrictions
   - Search functionality
   - Pagination and sorting
   - No internal flags exposed (isAvailable, isFeatured hidden)
