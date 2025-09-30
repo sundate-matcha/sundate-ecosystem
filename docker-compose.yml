@@ -1,4 +1,3 @@
-version: '3'
 services:
   api:
     restart: unless-stopped
@@ -8,8 +7,14 @@ services:
       dockerfile: apps/api/Dockerfile
     env_file:
       - ./apps/api/.env
+    healthcheck:
+      test: ["executable", "arg"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     networks:
-      - sundate_network
+      - main_network
 
   docs:
     restart: unless-stopped
@@ -20,18 +25,7 @@ services:
     env_file:
       - ./apps/docs/.env
     networks:
-      - sundate_network
-
-  dashboard:
-    restart: unless-stopped
-    container_name: dashboard
-    build:
-      context: .
-      dockerfile: apps/dashboard/Dockerfile
-    env_file:
-      - ./apps/dashboard/.env
-    networks:
-      - sundate_network
+      - main_network
 
   nginx:
     image: nginx:alpine
@@ -47,10 +41,9 @@ services:
       api:
         condition: service_started
     networks:
-      - sundate_network
+      - main_network
 
 networks:
-  sundate_network:
-    # driver: bridge
-    # define as external to use the same network as the other services
-    external: true
+  main_network:
+    name: sundate-ecosystem_network
+    driver: host

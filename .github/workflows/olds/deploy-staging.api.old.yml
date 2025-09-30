@@ -1,10 +1,11 @@
+# Currently closed since the Staging host is not available on public (private network)
 name: 🚀 Deploy as a Staging Environment | Dellbuntu
 
 on:
   push:
-    branches: ['staging']
+    branches: ['staging-api']
   # pull_request:
-  #   branches: ['staging']
+  #   branches: ['staging-api']
 
 permissions:
   contents: read
@@ -14,7 +15,6 @@ env:
   ORIGIN_SERVER_NAME: 'justdemo.work'
   PROJECT_NAME: 'sundate'
   IMAGE_NAME_API: 'api'
-  IMAGE_NAME_DOCS: 'docs'
   REGISTRY: ghcr.io # Use GitHub Container Registry (or Docker Hub if you prefer)
 
 jobs:
@@ -32,10 +32,17 @@ jobs:
       - name: Build and push API image
         run: |
           IMAGE=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME_API }}:staging
-          docker build -t $IMAGE -f apps/api/Dockerfile.standalone .
+          docker build -t $IMAGE -f ./apps/api/Dockerfile.standalone ./apps/api
           docker push $IMAGE
 
-      # 3. SSH into server and deploy via docker-compose
+      # 3. Test server connectivity
+      - name: Test server connectivity
+        run: |
+          echo "Testing connectivity to ${{ secrets.STAGING_HOST }}"
+          ping -c 3 ${{ secrets.STAGING_HOST }} || echo "Ping failed"
+          nc -zv ${{ secrets.STAGING_HOST }} 22 || echo "Port 22 test failed"
+
+      # 4. SSH into server and deploy via docker-compose
       - name: Deploy on server with docker-compose
         # ✅ Use appleboy/ssh-action to SSH into server and deploy via docker-compose
         uses: appleboy/ssh-action@v1.1.0
@@ -57,6 +64,9 @@ jobs:
           host: ${{ env.STAGING_HOST }}
           username: ${{ env.STAGING_USER }}
           key: ${{ env.STAGING_SSH_KEY }}
+          port: 22
+          timeout: 60s
+          command_timeout: 10m
           script: |
             set -e
             cd ~/apps/${{ env.PROJECT_NAME }}
@@ -78,5 +88,5 @@ jobs:
             EOF
 
             # Pull latest image & restart via docker-compose
-            docker-compose pull
-            docker-compose up -d --remove-orphans
+            docker-compose -f docker-compose.api.yml pull
+            docker-compose -f docker-compose.api.yml up -d --remove-orphans
