@@ -5,7 +5,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
-import env from './config/env.js'
+import { env } from './config/env.js'
 
 // Import routes
 import reservationRoutes from './routes/reservations.js'
