@@ -442,9 +442,10 @@ function ReservationsSection() {
           description="Create a new table reservation with validation and availability checking."
           parameters={[
             { name: 'name', type: 'string', required: true, description: 'Customer name (2-100 chars)' },
-            { name: 'phone', type: 'string', required: true, description: 'Phone number (required)' },
+            { name: 'phone', type: 'string', required: true, description: 'Phone number (10-12 digits)' },
             { name: 'date', type: 'string', required: true, description: 'Reservation date (ISO 8601, no Sundays)' },
-            { name: 'time', type: 'string', required: true, description: 'Time slot (18:00 - 21:00)' },
+            { name: 'time', type: 'string', required: true, description: 'Time slot in HH:mm format' },
+            { name: 'tableCategory', type: 'string', required: true, description: 'Table category ID (ObjectId)' },
             { name: 'guests', type: 'number', required: true, description: 'Number of guests (1-20)' },
             { name: 'email', type: 'string', required: false, description: 'Customer email (optional)' },
             {
@@ -484,6 +485,95 @@ function ReservationsSection() {
             "available": true,
             "currentOccupancy": 12,
             "remainingCapacity": 8
+          }`}
+        />
+
+        <EndpointCard
+          method="GET"
+          path="/api/reservations/:id"
+          title="Get Reservation by ID"
+          description="Retrieve a specific reservation by its ID."
+          parameters={[
+            { name: 'id', type: 'string', required: true, description: 'Reservation ID' }
+          ]}
+          responseExample={`{
+            "_id": "507f1f77bcf86cd799439011",
+            "name": "John Doe",
+            "email": "john@example.com",
+            "phone": "+1234567890",
+            "date": "2024-01-15T00:00:00.000Z",
+            "time": "19:00",
+            "tableCategory": "507f1f77bcf86cd799439012",
+            "guests": 4,
+            "status": "pending",
+            "specialRequests": "Window seat preferred",
+            "notes": "",
+            "createdAt": "2024-01-10T10:00:00.000Z",
+            "updatedAt": "2024-01-10T10:00:00.000Z"
+          }`}
+        />
+
+        <EndpointCard
+          method="PUT"
+          path="/api/reservations/:id"
+          title="Update Reservation"
+          description="Update an existing reservation. Cannot modify cancelled or completed reservations."
+          parameters={[
+            { name: 'id', type: 'string', required: true, description: 'Reservation ID' },
+            { name: 'name', type: 'string', required: false, description: 'Customer name (2-100 chars)' },
+            { name: 'phone', type: 'string', required: false, description: 'Phone number (10-12 digits)' },
+            { name: 'date', type: 'string', required: false, description: 'Reservation date (ISO 8601)' },
+            { name: 'time', type: 'string', required: false, description: 'Time slot in HH:mm format' },
+            { name: 'tableCategory', type: 'string', required: false, description: 'Table category ID' },
+            { name: 'guests', type: 'number', required: false, description: 'Number of guests (1-20)' },
+            { name: 'email', type: 'string', required: false, description: 'Customer email' },
+            { name: 'specialRequests', type: 'string', required: false, description: 'Special requests (max 500 chars)' },
+            { name: 'notes', type: 'string', required: false, description: 'Additional notes (max 200 chars)' }
+          ]}
+          responseExample={`{
+            "message": "Reservation updated successfully",
+            "reservation": {...}
+          }`}
+        />
+
+        <EndpointCard
+          method="PATCH"
+          path="/api/reservations/:id/confirm"
+          title="Confirm Reservation"
+          description="Confirm a pending reservation. Only pending reservations can be confirmed."
+          parameters={[
+            { name: 'id', type: 'string', required: true, description: 'Reservation ID' }
+          ]}
+          responseExample={`{
+            "message": "Reservation confirmed successfully",
+            "reservation": {...}
+          }`}
+        />
+
+        <EndpointCard
+          method="PATCH"
+          path="/api/reservations/:id/cancel"
+          title="Cancel Reservation"
+          description="Cancel a reservation. Cannot cancel already cancelled or completed reservations."
+          parameters={[
+            { name: 'id', type: 'string', required: true, description: 'Reservation ID' }
+          ]}
+          responseExample={`{
+            "message": "Reservation cancelled successfully",
+            "reservation": {...}
+          }`}
+        />
+
+        <EndpointCard
+          method="DELETE"
+          path="/api/reservations/:id"
+          title="Delete Reservation"
+          description="Permanently delete a reservation from the system."
+          parameters={[
+            { name: 'id', type: 'string', required: true, description: 'Reservation ID' }
+          ]}
+          responseExample={`{
+            "message": "Reservation deleted successfully"
           }`}
         />
       </div>
@@ -1402,6 +1492,56 @@ const endpoints = [
     path: '/api/reservations/availability/check',
     title: 'Check Availability',
     description: 'Check if a specific time slot is available for a given number of guests.',
+    hasParams: true,
+    hasBody: false,
+    testable: false
+  },
+  {
+    id: 'reservations-get-by-id',
+    method: 'GET',
+    path: '/api/reservations/:id',
+    title: 'Get Reservation by ID',
+    description: 'Retrieve a specific reservation by its ID.',
+    hasParams: true,
+    hasBody: false,
+    testable: true
+  },
+  {
+    id: 'reservations-update',
+    method: 'PUT',
+    path: '/api/reservations/:id',
+    title: 'Update Reservation',
+    description: 'Update an existing reservation. Cannot modify cancelled or completed reservations.',
+    hasParams: true,
+    hasBody: true,
+    testable: false
+  },
+  {
+    id: 'reservations-confirm',
+    method: 'PATCH',
+    path: '/api/reservations/:id/confirm',
+    title: 'Confirm Reservation',
+    description: 'Confirm a pending reservation. Only pending reservations can be confirmed.',
+    hasParams: true,
+    hasBody: false,
+    testable: false
+  },
+  {
+    id: 'reservations-cancel',
+    method: 'PATCH',
+    path: '/api/reservations/:id/cancel',
+    title: 'Cancel Reservation',
+    description: 'Cancel a reservation. Cannot cancel already cancelled or completed reservations.',
+    hasParams: true,
+    hasBody: false,
+    testable: false
+  },
+  {
+    id: 'reservations-delete',
+    method: 'DELETE',
+    path: '/api/reservations/:id',
+    title: 'Delete Reservation',
+    description: 'Permanently delete a reservation from the system.',
     hasParams: true,
     hasBody: false,
     testable: false
