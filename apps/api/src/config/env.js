@@ -6,4 +6,12 @@ export const env = {
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
   JWT_SECRET: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'your-super-secret-jwt-refresh-key-change-this-in-production',
+  
+  // Notification settings
+  ENABLE_PUSH_NOTIFICATIONS: process.env.ENABLE_PUSH_NOTIFICATIONS === 'true' || true,
+  NOTIFICATION_BATCH_SIZE: parseInt(process.env.NOTIFICATION_BATCH_SIZE) || 100,
+  
+  // Logging settings
+  LOG_RETENTION_DAYS: parseInt(process.env.LOG_RETENTION_DAYS) || 90,
+  LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 }
