@@ -5,6 +5,102 @@ export const metadata = {
   description: 'Learn how to authenticate your API requests and manage access'
 }
 
+// User Registration
+const userRegistrationParams = [
+  { name: 'username', type: 'string', required: true, description: 'Username (3-30 chars, alphanumeric + underscore)' },
+  { name: 'email', type: 'string', required: true, description: 'Valid email address' },
+  { name: 'password', type: 'string', required: true, description: 'Password (min 6 chars)' },
+  { name: 'firstName', type: 'string', required: true, description: 'First name (1-50 chars)' },
+  { name: 'lastName', type: 'string', required: true, description: 'Last name (1-50 chars)' },
+  { name: 'phone', type: 'string', required: false, description: 'Phone number (optional)' }
+]
+
+const userRegistrationResponse = `{
+  "message": "User registered successfully",
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}`
+
+// User Login
+const userLoginParams = [
+  { name: 'identifier', type: 'string', required: true, description: 'Email or username' },
+  { name: 'password', type: 'string', required: true, description: 'User password' }
+]
+
+const userLoginResponse = `{
+  "message": "Login successful",
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}`
+
+// User Logout
+const userLogoutResponse = `{
+  "message": "Logout successful",
+  "note": "Please remove the token from client storage"
+}`
+
+// Get User Profile
+const getUserProfileResponse = `{
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "user"
+  }
+}`
+
+// Update User Profile
+const updateUserProfileParams = [
+  { name: 'firstName', type: 'string', required: false, description: 'First name (1-50 chars)' },
+  { name: 'lastName', type: 'string', required: false, description: 'Last name (1-50 chars)' },
+  { name: 'phone', type: 'string', required: false, description: 'Phone number (10-15 chars)' },
+  { name: 'preferences', type: 'object', required: false, description: 'User preferences object' }
+]
+
+const updateUserProfileResponse = `{
+  "message": "Profile updated successfully",
+  "user": {
+    "id": "...",
+    "firstName": "John",
+    "lastName": "Smith",
+    "phone": "+1234567890"
+  }
+}`
+
+// Change Password
+const changePasswordParams = [
+  { name: 'currentPassword', type: 'string', required: true, description: 'Current password' },
+  { name: 'newPassword', type: 'string', required: true, description: 'New password (min 6 chars)' }
+]
+
+const changePasswordResponse = `{
+  "message": "Password changed successfully"
+}`
+
+// Verify Token
+const verifyTokenResponse = `{
+  "valid": true,
+  "user": {
+    "id": "...",
+    "username": "john_doe",
+    "email": "john@example.com"
+  }
+}`
+
 export default function AuthenticationPage() {
   return (
     <div className="space-y-8">
@@ -21,30 +117,8 @@ export default function AuthenticationPage() {
           path="/api/auth/register"
           title="User Registration"
           description="Register a new user account."
-          parameters={[
-            {
-              name: 'username',
-              type: 'string',
-              required: true,
-              description: 'Username (3-30 chars, alphanumeric + underscore)'
-            },
-            { name: 'email', type: 'string', required: true, description: 'Valid email address' },
-            { name: 'password', type: 'string', required: true, description: 'Password (min 6 chars)' },
-            { name: 'firstName', type: 'string', required: true, description: 'First name (1-50 chars)' },
-            { name: 'lastName', type: 'string', required: true, description: 'Last name (1-50 chars)' },
-            { name: 'phone', type: 'string', required: false, description: 'Phone number (optional)' }
-          ]}
-          responseExample={`{
-  "message": "User registered successfully",
-  "user": {
-    "id": "...",
-    "username": "john_doe",
-    "email": "john@example.com",
-    "firstName": "John",
-    "lastName": "Doe"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}`}
+          parameters={userRegistrationParams}
+          responseExample={userRegistrationResponse}
         />
 
         <EndpointCard
@@ -52,21 +126,8 @@ export default function AuthenticationPage() {
           path="/api/auth/login"
           title="User Login"
           description="Authenticate user and get JWT token."
-          parameters={[
-            { name: 'identifier', type: 'string', required: true, description: 'Email or username' },
-            { name: 'password', type: 'string', required: true, description: 'User password' }
-          ]}
-          responseExample={`{
-  "message": "Login successful",
-  "user": {
-    "id": "...",
-    "username": "john_doe",
-    "email": "john@example.com",
-    "firstName": "John",
-    "lastName": "Doe"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}`}
+          parameters={userLoginParams}
+          responseExample={userLoginResponse}
         />
 
         <EndpointCard
@@ -75,10 +136,7 @@ export default function AuthenticationPage() {
           title="User Logout"
           description="Logout user (client-side token removal)."
           parameters={[]}
-          responseExample={`{
-  "message": "Logout successful",
-  "note": "Please remove the token from client storage"
-}`}
+          responseExample={userLogoutResponse}
         />
 
         <EndpointCard
@@ -87,16 +145,7 @@ export default function AuthenticationPage() {
           title="Get User Profile"
           description="Get current user profile information."
           parameters={[]}
-          responseExample={`{
-  "user": {
-    "id": "...",
-    "username": "john_doe",
-    "email": "john@example.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "role": "user"
-  }
-}`}
+          responseExample={getUserProfileResponse}
         />
 
         <EndpointCard
@@ -104,21 +153,8 @@ export default function AuthenticationPage() {
           path="/api/auth/profile"
           title="Update User Profile"
           description="Update current user profile information."
-          parameters={[
-            { name: 'firstName', type: 'string', required: false, description: 'First name (1-50 chars)' },
-            { name: 'lastName', type: 'string', required: false, description: 'Last name (1-50 chars)' },
-            { name: 'phone', type: 'string', required: false, description: 'Phone number (10-15 chars)' },
-            { name: 'preferences', type: 'object', required: false, description: 'User preferences object' }
-          ]}
-          responseExample={`{
-  "message": "Profile updated successfully",
-  "user": {
-    "id": "...",
-    "firstName": "John",
-    "lastName": "Smith",
-    "phone": "+1234567890"
-  }
-}`}
+          parameters={updateUserProfileParams}
+          responseExample={updateUserProfileResponse}
         />
 
         <EndpointCard
@@ -126,13 +162,8 @@ export default function AuthenticationPage() {
           path="/api/auth/change-password"
           title="Change Password"
           description="Change user password."
-          parameters={[
-            { name: 'currentPassword', type: 'string', required: true, description: 'Current password' },
-            { name: 'newPassword', type: 'string', required: true, description: 'New password (min 6 chars)' }
-          ]}
-          responseExample={`{
-  "message": "Password changed successfully"
-}`}
+          parameters={changePasswordParams}
+          responseExample={changePasswordResponse}
         />
 
         <EndpointCard
@@ -141,14 +172,7 @@ export default function AuthenticationPage() {
           title="Verify Token"
           description="Verify JWT token validity."
           parameters={[]}
-          responseExample={`{
-  "valid": true,
-  "user": {
-    "id": "...",
-    "username": "john_doe",
-    "email": "john@example.com"
-  }
-}`}
+          responseExample={verifyTokenResponse}
         />
       </div>
 
@@ -191,4 +215,3 @@ export default function AuthenticationPage() {
     </div>
   )
 }
-

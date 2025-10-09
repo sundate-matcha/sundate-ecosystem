@@ -26,16 +26,16 @@ const sections = [
     icon: Settings,
     level: 0,
     children: [
-      { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/reservations' },
-      { id: 'menu', label: 'Menu', icon: UtensilsCrossed, href: '/menu' },
-      { id: 'contact', label: 'Contact', icon: MessageSquare, href: '/contact' },
-      { id: 'table-categories', label: 'Table Categories', icon: Table, href: '/table-categories' },
-      { id: 'authentication', label: 'Authentication', icon: Shield, href: '/authentication' },
-      { id: 'admin-menu', label: 'Admin Menu', icon: Settings, href: '/admin-menu' }
+      { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/features/reservations' },
+      { id: 'menu', label: 'Menu', icon: UtensilsCrossed, href: '/features/menu' },
+      { id: 'contact', label: 'Contact', icon: MessageSquare, href: '/features/contact' },
+      { id: 'table-categories', label: 'Table Categories', icon: Table, href: '/features/table-categories' },
+      { id: 'authentication', label: 'Authentication', icon: Shield, href: '/features/authentication' },
+      { id: 'admin-menu', label: 'Admin Menu', icon: Settings, href: '/features/admin-menu' }
     ]
   },
-  { id: 'errors-handling', label: 'Error Handling', icon: Zap, href: '/errors', level: 0 },
-  { id: 'api-testing', label: 'API Testing', icon: Play, href: '/testing', level: 0 }
+  { id: 'errors-handling', label: 'Error Handling', icon: Zap, href: '/errors-handling', level: 0 },
+  { id: 'api-testing', label: 'API Testing', icon: Play, href: '/api-testing', level: 0 }
 ]
 
 export function Sidebar() {
@@ -46,19 +46,19 @@ export function Sidebar() {
   // Auto-expand features section when a child item is active
   useEffect(() => {
     const activeChildPaths = [
-      '/reservations',
-      '/menu',
-      '/contact',
-      '/table-categories',
-      '/authentication',
-      '/admin-menu'
+      '/features/reservations',
+      '/features/menu',
+      '/features/contact',
+      '/features/table-categories',
+      '/features/authentication',
+      '/features/admin-menu'
     ]
     if (activeChildPaths.includes(pathname)) {
       setExpandedFeatures(true)
     }
   }, [pathname])
 
-  const renderNavigationItem = (section: any) => {
+  const renderNavigationItem = (section: any, isChild: boolean = false) => {
     const Icon = section.icon
     const isActive = pathname === section.href
 
