@@ -132,6 +132,7 @@ router.post('/', validateReservation, async (req, res) => {
       date,
       time,
       guests,
+      tableCategory: tableCategoryId,
       specialRequests
     })
 
