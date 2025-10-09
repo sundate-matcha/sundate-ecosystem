@@ -1,6 +1,7 @@
 import { Expo } from 'expo-server-sdk'
 import PushToken from '../models/PushToken.js'
 import ReservationLog from '../models/ReservationLog.js'
+import Notification from '../models/Notification.js'
 
 // Create a new Expo SDK client
 const expo = new Expo()
@@ -159,8 +160,9 @@ class NotificationService {
    * Send notification when reservation is created
    * @param {Object} reservation - Reservation object
    * @param {String} logId - Optional log ID to update
+   * @param {String} userId - Optional user ID for in-app notification
    */
-  async sendReservationCreatedNotification(reservation, logId = null) {
+  async sendReservationCreatedNotification(reservation, logId = null, userId = null) {
     const title = '🎉 Reservation Created!'
     const body = `New reservation for ${reservation.name} on ${new Date(reservation.date).toLocaleDateString()} at ${reservation.time}`
     const data = {
@@ -169,7 +171,19 @@ class NotificationService {
       screen: 'ReservationDetails'
     }
 
-    const tokens = await this.getActiveTokens()
+    // Create in-app notification
+    await this.createInAppNotification({
+      userId,
+      type: 'reservation_created',
+      title,
+      body,
+      data,
+      reservationId: reservation._id,
+      priority: 'high',
+      icon: '🎉'
+    })
+
+    const tokens = await this.getActiveTokens(userId)
     const result = await this.sendPushNotification(tokens, title, body, data)
 
     // Update log if provided
@@ -184,8 +198,9 @@ class NotificationService {
    * Send notification when reservation is confirmed
    * @param {Object} reservation - Reservation object
    * @param {String} logId - Optional log ID to update
+   * @param {String} userId - Optional user ID for in-app notification
    */
-  async sendReservationConfirmedNotification(reservation, logId = null) {
+  async sendReservationConfirmedNotification(reservation, logId = null, userId = null) {
     const title = '✅ Reservation Confirmed!'
     const body = `Reservation for ${reservation.name} on ${new Date(reservation.date).toLocaleDateString()} at ${reservation.time} has been confirmed`
     const data = {
@@ -194,7 +209,19 @@ class NotificationService {
       screen: 'ReservationDetails'
     }
 
-    const tokens = await this.getActiveTokens()
+    // Create in-app notification
+    await this.createInAppNotification({
+      userId,
+      type: 'reservation_confirmed',
+      title,
+      body,
+      data,
+      reservationId: reservation._id,
+      priority: 'high',
+      icon: '✅'
+    })
+
+    const tokens = await this.getActiveTokens(userId)
     const result = await this.sendPushNotification(tokens, title, body, data)
 
     // Update log if provided
@@ -209,8 +236,9 @@ class NotificationService {
    * Send notification when reservation is cancelled
    * @param {Object} reservation - Reservation object
    * @param {String} logId - Optional log ID to update
+   * @param {String} userId - Optional user ID for in-app notification
    */
-  async sendReservationCancelledNotification(reservation, logId = null) {
+  async sendReservationCancelledNotification(reservation, logId = null, userId = null) {
     const title = '❌ Reservation Cancelled'
     const body = `Reservation for ${reservation.name} on ${new Date(reservation.date).toLocaleDateString()} at ${reservation.time} has been cancelled`
     const data = {
@@ -219,7 +247,19 @@ class NotificationService {
       screen: 'ReservationDetails'
     }
 
-    const tokens = await this.getActiveTokens()
+    // Create in-app notification
+    await this.createInAppNotification({
+      userId,
+      type: 'reservation_cancelled',
+      title,
+      body,
+      data,
+      reservationId: reservation._id,
+      priority: 'high',
+      icon: '❌'
+    })
+
+    const tokens = await this.getActiveTokens(userId)
     const result = await this.sendPushNotification(tokens, title, body, data)
 
     // Update log if provided
@@ -235,8 +275,9 @@ class NotificationService {
    * @param {Object} reservation - Reservation object
    * @param {Object} changes - Changes made to reservation
    * @param {String} logId - Optional log ID to update
+   * @param {String} userId - Optional user ID for in-app notification
    */
-  async sendReservationUpdatedNotification(reservation, changes = {}, logId = null) {
+  async sendReservationUpdatedNotification(reservation, changes = {}, logId = null, userId = null) {
     const title = '📝 Reservation Updated'
     const changesText = Object.keys(changes).join(', ')
     const body = `Reservation for ${reservation.name} has been updated. Changes: ${changesText}`
@@ -247,7 +288,19 @@ class NotificationService {
       screen: 'ReservationDetails'
     }
 
-    const tokens = await this.getActiveTokens()
+    // Create in-app notification
+    await this.createInAppNotification({
+      userId,
+      type: 'reservation_updated',
+      title,
+      body,
+      data,
+      reservationId: reservation._id,
+      priority: 'normal',
+      icon: '📝'
+    })
+
+    const tokens = await this.getActiveTokens(userId)
     const result = await this.sendPushNotification(tokens, title, body, data)
 
     // Update log if provided
@@ -339,6 +392,26 @@ class NotificationService {
     } catch (error) {
       console.error('Error unregistering token:', error)
       throw error
+    }
+  }
+
+  /**
+   * Create in-app notification
+   * @param {Object} notificationData - Notification data
+   * @returns {Object} Created notification
+   */
+  async createInAppNotification(notificationData) {
+    try {
+      const notification = await Notification.createNotification({
+        ...notificationData,
+        isSent: true,
+        sentAt: new Date()
+      })
+      return notification
+    } catch (error) {
+      console.error('Error creating in-app notification:', error)
+      // Don't throw error - notification creation shouldn't break the flow
+      return null
     }
   }
 }
