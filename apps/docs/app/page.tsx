@@ -603,7 +603,6 @@ function MenuSection() {
             { name: 'dietary', type: 'string[]', description: 'Filter by dietary restrictions' },
             { name: 'maxPrice', type: 'number', description: 'Maximum price filter' },
             { name: 'minPrice', type: 'number', description: 'Minimum price filter' },
-            { name: 'spicyLevel', type: 'number', description: 'Spicy level (0-5)' },
             { name: 'isAvailable', type: 'boolean', description: 'Filter by availability' },
             { name: 'isFeatured', type: 'boolean', description: 'Filter featured items' }
           ]}
@@ -660,7 +659,6 @@ function MenuSection() {
             { name: 'dietary', type: 'string[]', description: 'Filter by dietary restrictions' },
             { name: 'maxPrice', type: 'number', description: 'Maximum price filter' },
             { name: 'minPrice', type: 'number', description: 'Minimum price filter' },
-            { name: 'spicyLevel', type: 'number', description: 'Spicy level (0-5)' },
             { name: 'page', type: 'number', description: 'Page number (default: 1)' },
             { name: 'limit', type: 'number', description: 'Items per page (default: 20)' },
             { name: 'sortBy', type: 'string', description: 'Sort field (default: name)' },
@@ -1093,7 +1091,6 @@ function AdminMenuSection() {
             { name: 'ingredients', type: 'string[]', required: false, description: 'Array of ingredients' },
             { name: 'allergens', type: 'string[]', required: false, description: 'Array of allergens' },
             { name: 'dietary', type: 'string[]', required: false, description: 'Dietary options' },
-            { name: 'spicyLevel', type: 'number', required: false, description: 'Spicy level (0-5)' },
             { name: 'preparationTime', type: 'number', required: false, description: 'Prep time in minutes' },
             { name: 'calories', type: 'number', required: false, description: 'Calorie content' },
             { name: 'protein', type: 'number', required: false, description: 'Protein content' },
@@ -2285,23 +2282,6 @@ function APITestingSection({ activeSection }: { activeSection: string }) {
                         placeholder="0.00"
                         className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                        Spicy Level
-                      </label>
-                      <select
-                        name="spicyLevel"
-                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none cursor-pointer hover:border-neutral-400 dark:hover:border-neutral-500 shadow-sm"
-                      >
-                        <option value="">Any Level</option>
-                        <option value="0">Not Spicy</option>
-                        <option value="1">Mild</option>
-                        <option value="2">Medium</option>
-                        <option value="3">Hot</option>
-                        <option value="4">Very Hot</option>
-                        <option value="5">Extreme</option>
-                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">

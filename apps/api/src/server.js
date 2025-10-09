@@ -13,6 +13,8 @@ import menuRoutes from './routes/menu.js'
 import contactRoutes from './routes/contact.js'
 import authRoutes from './routes/auth.js'
 import tableCategoryRoutes from './routes/table-categories.js'
+import pushTokenRoutes from './routes/pushTokens.js'
+import logRoutes from './routes/logs.js'
 
 // Load environment variables
 dotenv.config()
@@ -61,6 +63,8 @@ app.use(`${BASE_URL}/menu`, menuRoutes)
 app.use(`${BASE_URL}/contact`, contactRoutes)
 app.use(`${BASE_URL}/auth`, authRoutes)
 app.use(`${BASE_URL}/table-categories`, tableCategoryRoutes)
+app.use(`${BASE_URL}/push-tokens`, pushTokenRoutes)
+app.use(`${BASE_URL}/logs`, logRoutes)
 
 // Health check endpoint
 app.get(`${BASE_URL}/health`, (req, res) => {
