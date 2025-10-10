@@ -1,39 +1,42 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import { env } from '../src/config/env.js'
-import { TABLE_CATEGORIES } from '../constants/index.js'
+import { DEFAULT_TABLE_CATEGORIES } from '../constants/index.js'
+import TableCategory from '../src/models/TableCategory.js'
 
 // Load environment variables
 dotenv.config()
 
-const createAdminUser = async () => {
+const createTableCategories = async () => {
   try {
     // Connect to MongoDB
     await mongoose.connect(env.MONGO_URI)
     console.log('Connected to MongoDB')
 
-    // Check if admin user already exists
-    const existingAdmin = await User.findOne({ role: 'admin' })
-    if (existingAdmin) {
-      console.log('Admin user already exists:', existingAdmin.email)
+    // Check if table categories already exist
+    const existingCategories = await TableCategory.find()
+    if (existingCategories.length > 0) {
+      console.log('Table categories already exist:', existingCategories.length, 'categories found')
       process.exit(0)
     }
 
-    // Create admin user
-    const adminUser = TABLE_CATEGORIES
+    // Create table categories with sort order
+    const tableCategories = DEFAULT_TABLE_CATEGORIES.map((category, index) => ({
+      ...category,
+      sortOrder: index + 1
+    }))
 
-    await adminUser.save()
-    console.log('Admin user created successfully:')
-    console.log('Username: admin')
-    console.log('Email: admin@sundate.com')
-    console.log('Password: admin123')
-    console.log('Role: admin')
+    const createdCategories = await TableCategory.insertMany(tableCategories)
+    console.log('Table categories created successfully:')
+    createdCategories.forEach((category, index) => {
+      console.log(`${index + 1}. ${category.name} - Capacity: ${category.capacity}`)
+    })
 
     process.exit(0)
   } catch (error) {
-    console.error('Error creating admin user:', error)
+    console.error('Error creating table categories:', error)
     process.exit(1)
   }
 }
 
-createAdminUser()
+createTableCategories()

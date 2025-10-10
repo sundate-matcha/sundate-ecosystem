@@ -2,6 +2,8 @@ import express from 'express'
 import { body, validationResult } from 'express-validator'
 import Reservation from '../models/Reservation.js'
 import TableCategory from '../models/TableCategory.js'
+import notificationService from '../services/notificationService.js'
+import logService from '../services/logService.js'
 
 const router = express.Router()
 
@@ -130,13 +132,20 @@ router.post('/', validateReservation, async (req, res) => {
       date,
       time,
       guests,
+      tableCategory: tableCategoryId,
       specialRequests
     })
 
     await reservation.save()
 
-    // Send confirmation email (would implement email service here)
-    // await sendReservationConfirmation(reservation);
+    // Log reservation creation
+    const metadata = logService.extractMetadata(req)
+    const log = await logService.logReservationCreated(reservation, metadata)
+
+    // Send push notification (async, non-blocking)
+    notificationService
+      .sendReservationCreatedNotification(reservation, log._id)
+      .catch(error => console.error('Error sending notification:', error))
 
     res.status(201).json({
       confirmationNumber: reservation._id.toString().slice(-8).toUpperCase(),
@@ -193,9 +202,32 @@ router.put('/:id', validateReservation, async (req, res) => {
       }
     }
 
+    // Track changes
+    const changes = {}
+    const updateFields = ['name', 'email', 'phone', 'date', 'time', 'guests', 'specialRequests', 'notes']
+    updateFields.forEach(field => {
+      if (req.body[field] !== undefined && req.body[field] !== reservation[field]) {
+        changes[field] = {
+          old: reservation[field],
+          new: req.body[field]
+        }
+      }
+    })
+
     // Update reservation
     Object.assign(reservation, req.body)
     await reservation.save()
+
+    // Log reservation update
+    const metadata = logService.extractMetadata(req)
+    const log = await logService.logReservationUpdated(reservation, changes, metadata)
+
+    // Send push notification if there are changes
+    if (Object.keys(changes).length > 0) {
+      notificationService
+        .sendReservationUpdatedNotification(reservation, changes, log._id)
+        .catch(error => console.error('Error sending notification:', error))
+    }
 
     res.json({
       message: 'Reservation updated successfully',
@@ -223,6 +255,15 @@ router.patch('/:id/confirm', async (req, res) => {
 
     await reservation.confirm()
 
+    // Log reservation confirmation
+    const metadata = logService.extractMetadata(req)
+    const log = await logService.logReservationConfirmed(reservation, metadata)
+
+    // Send push notification
+    notificationService
+      .sendReservationConfirmedNotification(reservation, log._id)
+      .catch(error => console.error('Error sending notification:', error))
+
     res.json({
       message: 'Reservation confirmed successfully',
       reservation
@@ -247,7 +288,17 @@ router.patch('/:id/cancel', async (req, res) => {
       })
     }
 
+    const previousStatus = reservation.status
     await reservation.cancel()
+
+    // Log reservation cancellation
+    const metadata = logService.extractMetadata(req)
+    const log = await logService.logReservationCancelled(reservation, previousStatus, metadata)
+
+    // Send push notification
+    notificationService
+      .sendReservationCancelledNotification(reservation, log._id)
+      .catch(error => console.error('Error sending notification:', error))
 
     res.json({
       message: 'Reservation cancelled successfully',
@@ -265,6 +316,10 @@ router.delete('/:id', async (req, res) => {
     if (!reservation) {
       return res.status(404).json({ error: 'Reservation not found' })
     }
+
+    // Log reservation deletion before deleting
+    const metadata = logService.extractMetadata(req)
+    await logService.logReservationDeleted(reservation, metadata)
 
     await Reservation.findByIdAndDelete(req.params.id)
 
