@@ -1,5 +1,7 @@
-import { Code, Github, ExternalLink } from 'lucide-react'
+import { Github, ExternalLink } from 'lucide-react'
+import Image from 'next/image'
 import { Sidebar } from '@/components/Sidebar'
+import { API_URL } from '@/lib/constants'
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,8 +11,8 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-red-700 to-red-600 rounded-lg flex items-center justify-center">
-                <Code className="w-6 h-6 text-amber-100" />
+              <div className="w-12 h-12 bg-[#fff8de] rounded-lg flex items-center justify-center">
+                <Image src="/logo.png" alt="Sundate Matcha" width={36} height={36} />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-neutral-900 dark:text-white">Sundate Matcha API</h1>
@@ -19,20 +21,18 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             </div>
             <div className="flex items-center space-x-4">
               <a
-                href="https://github.com/sundate-matcha/sundate-ecosystem/tree/main/apps/api/"
+                href="https://github.com/sundate-matcha/sundate-ecosystem/tree/main/apps/docs/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-              >
+                className="flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
                 <Github className="w-5 h-5" />
                 <span className="hidden sm:inline">GitHub</span>
               </a>
               <a
-                href="/api/health"
+                href={`${API_URL}health`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-              >
+                className="flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
                 <ExternalLink className="w-5 h-5" />
                 <span className="hidden sm:inline">API Status</span>
               </a>
@@ -44,14 +44,11 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <Sidebar />
-          
+
           {/* Main Content */}
-          <main className="lg:col-span-3 space-y-8">
-            {children}
-          </main>
+          <main className="lg:col-span-3 space-y-8">{children}</main>
         </div>
       </div>
     </div>
   )
 }
-

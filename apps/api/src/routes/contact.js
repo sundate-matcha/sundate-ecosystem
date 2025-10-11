@@ -28,7 +28,7 @@ const validateContact = [
     .withMessage('Please provide a valid phone number'),
   body('category')
     .optional()
-    .isIn(['General Inquiry', 'Reservation Question', 'Menu Question', 'Feedback', 'Complaint', 'Partnership', 'Other'])
+    .isIn(['General Inquiry', 'Reservation Question', 'Feedback', 'Complaint', 'Partnership', 'Other'])
     .withMessage('Please select a valid category'),
   body('source')
     .optional()

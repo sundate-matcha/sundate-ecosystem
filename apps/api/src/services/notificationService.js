@@ -30,7 +30,7 @@ class NotificationService {
 
     // Filter valid Expo push tokens
     const validTokens = tokens.filter(token => Expo.isExpoPushToken(token))
-    
+
     if (validTokens.length === 0) {
       console.warn('No valid Expo push tokens provided')
       return {
@@ -59,23 +59,23 @@ class NotificationService {
     for (const chunk of chunks) {
       try {
         const ticketChunk = await expo.sendPushNotificationsAsync(chunk)
-        
+
         ticketChunk.forEach((ticket, index) => {
           const token = chunk[index].to
-          
+
           if (ticket.status === 'error') {
             console.error(`Error sending notification to ${token}:`, ticket.message)
             failedCount++
-            
+
             // Mark token as failed in database
             this.handleFailedToken(token, ticket.message)
           } else {
             successCount++
-            
+
             // Mark token as successful
             this.handleSuccessfulToken(token)
           }
-          
+
           results.push({
             token,
             status: ticket.status,
@@ -86,7 +86,7 @@ class NotificationService {
       } catch (error) {
         console.error('Error sending push notification chunk:', error)
         failedCount += chunk.length
-        
+
         chunk.forEach(msg => {
           results.push({
             token: msg.to,
@@ -114,7 +114,7 @@ class NotificationService {
       const pushToken = await PushToken.findOne({ token })
       if (pushToken) {
         await pushToken.markFailure()
-        
+
         // If error is DeviceNotRegistered, deactivate immediately
         if (errorMessage && errorMessage.includes('DeviceNotRegistered')) {
           pushToken.isActive = false

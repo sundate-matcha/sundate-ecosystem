@@ -1,4 +1,4 @@
-import { Calendar, UtensilsCrossed, Table, Shield } from 'lucide-react'
+import { Calendar, Table, Shield, Bell, Smartphone } from 'lucide-react'
 import { API_URL } from '@/lib/constants'
 
 export const metadata = {
@@ -12,30 +12,20 @@ export default function OverviewPage() {
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold text-neutral-900 dark:text-white">Welcome to Sundate Matcha API</h1>
         <p className="text-xl text-neutral-600 dark:text-neutral-400 max-w-3xl mx-auto">
-          A comprehensive REST API for managing restaurant reservations, menu items, table categories, and customer communications.
+          A comprehensive REST API for managing restaurant reservations, table categories, and customer
+          communications.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
           <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4">
             <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Reservations</h3>
           <p className="text-neutral-600 dark:text-neutral-400">
-            Manage table reservations with availability checking, business hours (08:30 - 21:00), Sunday closure,
-            and guest management.
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
-          <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4">
-            <UtensilsCrossed className="w-6 h-6 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Menu Management</h3>
-          <p className="text-neutral-600 dark:text-neutral-400">
-            Handle menu items, categories, dietary options, and nutritional information. Includes admin CRUD operations
-            and public landing page endpoints.
+            Manage table reservations with availability checking, business hours (08:30 - 21:00), Sunday closure, and
+            guest management.
           </p>
         </div>
 
@@ -45,7 +35,8 @@ export default function OverviewPage() {
           </div>
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Table Categories</h3>
           <p className="text-neutral-600 dark:text-neutral-400">
-            Manage table categories with different capacities, pricing, and availability options for reservation management.
+            Manage table categories with different capacities, pricing, and availability options for reservation
+            management.
           </p>
         </div>
 
@@ -57,6 +48,28 @@ export default function OverviewPage() {
           <p className="text-neutral-600 dark:text-neutral-400">
             Secure user registration, login, logout, and profile management with JWT tokens and role-based access
             control.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
+          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-4">
+            <Bell className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Notifications</h3>
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Manage user notifications, track read status, archive notifications, and handle notification history for
+            reservation updates and system messages.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
+          <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center mb-4">
+            <Smartphone className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Push Tokens</h3>
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Register and manage push notification tokens for mobile and web applications, track device usage, and send
+            targeted notifications.
           </p>
         </div>
       </div>
@@ -100,4 +113,3 @@ export default function OverviewPage() {
     </div>
   )
 }
-
