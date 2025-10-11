@@ -1,6 +1,6 @@
 {
   "name": "sundate-api",
-  "version": "1.5.0",
+  "version": "1.5.9",
   "description": "Sundate Matcha API backend",
   "main": "src/server.js",
   "type": "module",
