@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 import {
   BookOpen,
   Calendar,
-  UtensilsCrossed,
   MessageSquare,
   Zap,
   Shield,
@@ -29,11 +28,9 @@ const sections = [
     level: 0,
     children: [
       { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/features/reservations' },
-      { id: 'menu', label: 'Menu', icon: UtensilsCrossed, href: '/features/menu' },
       { id: 'contact', label: 'Contact', icon: MessageSquare, href: '/features/contact' },
       { id: 'table-categories', label: 'Table Categories', icon: Table, href: '/features/table-categories' },
       { id: 'authentication', label: 'Authentication', icon: Shield, href: '/features/authentication' },
-      { id: 'admin-menu', label: 'Admin Menu', icon: Settings, href: '/features/admin-menu' },
       { id: 'notifications', label: 'Notifications', icon: Bell, href: '/features/notifications' },
       { id: 'push-tokens', label: 'Push Tokens', icon: Smartphone, href: '/features/push-tokens' }
     ]
@@ -51,11 +48,9 @@ export function Sidebar() {
   useEffect(() => {
     const activeChildPaths = [
       '/features/reservations',
-      '/features/menu',
       '/features/contact',
       '/features/table-categories',
       '/features/authentication',
-      '/features/admin-menu',
       '/features/notifications',
       '/features/push-tokens'
     ]
@@ -69,7 +64,14 @@ export function Sidebar() {
     const isActive = pathname === section.href
 
     if (section.children) {
-      const childPaths = ['/reservations', '/menu', '/contact', '/table-categories', '/authentication', '/admin-menu', '/notifications', '/push-tokens']
+      const childPaths = [
+        '/reservations',
+        '/contact',
+        '/table-categories',
+        '/authentication',
+        '/notifications',
+        '/push-tokens'
+      ]
       const isFeaturesExpanded = expandedFeatures || childPaths.includes(pathname)
 
       return (

@@ -34,7 +34,7 @@ const contactSchema = new mongoose.Schema({
   category: {
     type: String,
     enum: {
-      values: ['General Inquiry', 'Reservation Question', 'Menu Question', 'Feedback', 'Complaint', 'Partnership', 'Other'],
+      values: ['General Inquiry', 'Reservation Question', 'Feedback', 'Complaint', 'Partnership', 'Other'],
       message: 'Please select a valid category'
     },
     default: 'General Inquiry'

@@ -46,7 +46,6 @@ The documentation includes an interactive API testing section that allows you to
 ### Supported Endpoints
 
 - **Reservations**: GET all, POST create, GET availability check
-- **Menu**: GET items, GET categories, filtering and search
 - **Contact**: POST submit form
 - **Health**: GET status check
 

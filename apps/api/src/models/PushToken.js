@@ -81,11 +81,8 @@ pushTokenSchema.statics.getActiveTokens = async function (userId = null) {
 pushTokenSchema.statics.deactivateOldTokens = async function () {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  
-  return this.updateMany(
-    { lastUsed: { $lt: thirtyDaysAgo }, isActive: true },
-    { isActive: false }
-  )
+
+  return this.updateMany({ lastUsed: { $lt: thirtyDaysAgo }, isActive: true }, { isActive: false })
 }
 
 const PushToken = mongoose.model('PushToken', pushTokenSchema)
