@@ -9,7 +9,6 @@ import { env } from './config/env.js'
 
 // Import routes
 import reservationRoutes from './routes/reservations.js'
-import menuRoutes from './routes/menu.js'
 import contactRoutes from './routes/contact.js'
 import authRoutes from './routes/auth.js'
 import tableCategoryRoutes from './routes/table-categories.js'
@@ -59,14 +58,13 @@ const connectDB = async () => {
 }
 
 // Routes
-app.use(`${BASE_URL}/reservations`, reservationRoutes)
-app.use(`${BASE_URL}/menu`, menuRoutes)
-app.use(`${BASE_URL}/contact`, contactRoutes)
 app.use(`${BASE_URL}/auth`, authRoutes)
-app.use(`${BASE_URL}/table-categories`, tableCategoryRoutes)
-app.use(`${BASE_URL}/push-tokens`, pushTokenRoutes)
+app.use(`${BASE_URL}/contact`, contactRoutes)
 app.use(`${BASE_URL}/logs`, logRoutes)
 app.use(`${BASE_URL}/notifications`, notificationRoutes)
+app.use(`${BASE_URL}/push-tokens`, pushTokenRoutes)
+app.use(`${BASE_URL}/reservations`, reservationRoutes)
+app.use(`${BASE_URL}/table-categories`, tableCategoryRoutes)
 
 // Health check endpoint
 app.get(`${BASE_URL}/health`, (req, res) => {

@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 import {
   BookOpen,
   Calendar,
-  UtensilsCrossed,
   MessageSquare,
   Zap,
   Shield,
@@ -14,7 +13,9 @@ import {
   Menu,
   X,
   Play,
-  Table
+  Table,
+  Bell,
+  Smartphone
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -27,11 +28,11 @@ const sections = [
     level: 0,
     children: [
       { id: 'reservations', label: 'Reservations', icon: Calendar, href: '/features/reservations' },
-      { id: 'menu', label: 'Menu', icon: UtensilsCrossed, href: '/features/menu' },
       { id: 'contact', label: 'Contact', icon: MessageSquare, href: '/features/contact' },
       { id: 'table-categories', label: 'Table Categories', icon: Table, href: '/features/table-categories' },
       { id: 'authentication', label: 'Authentication', icon: Shield, href: '/features/authentication' },
-      { id: 'admin-menu', label: 'Admin Menu', icon: Settings, href: '/features/admin-menu' }
+      { id: 'notifications', label: 'Notifications', icon: Bell, href: '/features/notifications' },
+      { id: 'push-tokens', label: 'Push Tokens', icon: Smartphone, href: '/features/push-tokens' }
     ]
   },
   { id: 'errors-handling', label: 'Error Handling', icon: Zap, href: '/errors-handling', level: 0 },
@@ -47,11 +48,11 @@ export function Sidebar() {
   useEffect(() => {
     const activeChildPaths = [
       '/features/reservations',
-      '/features/menu',
       '/features/contact',
       '/features/table-categories',
       '/features/authentication',
-      '/features/admin-menu'
+      '/features/notifications',
+      '/features/push-tokens'
     ]
     if (activeChildPaths.includes(pathname)) {
       setExpandedFeatures(true)
@@ -63,7 +64,14 @@ export function Sidebar() {
     const isActive = pathname === section.href
 
     if (section.children) {
-      const childPaths = ['/reservations', '/menu', '/contact', '/table-categories', '/authentication', '/admin-menu']
+      const childPaths = [
+        '/reservations',
+        '/contact',
+        '/table-categories',
+        '/authentication',
+        '/notifications',
+        '/push-tokens'
+      ]
       const isFeaturesExpanded = expandedFeatures || childPaths.includes(pathname)
 
       return (

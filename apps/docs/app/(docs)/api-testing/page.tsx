@@ -102,31 +102,6 @@ const allEndpoints = [
     requiresAuth: true
   },
 
-  // Menu (Public)
-  { id: 'menu-get', method: 'GET', path: '/api/menu', title: 'Get Menu Items', requiresAuth: false },
-  { id: 'menu-categories', method: 'GET', path: '/api/menu/categories', title: 'Get Categories', requiresAuth: false },
-  { id: 'menu-featured', method: 'GET', path: '/api/menu/featured', title: 'Get Featured Items', requiresAuth: false },
-  { id: 'menu-public', method: 'GET', path: '/api/menu/public', title: 'Get Public Menu Items', requiresAuth: false },
-
-  // Menu (Admin)
-  { id: 'menu-create', method: 'POST', path: '/api/menu', title: 'Create Menu Item', requiresAuth: true },
-  { id: 'menu-update', method: 'PUT', path: '/api/menu/:id', title: 'Update Menu Item', requiresAuth: true },
-  { id: 'menu-delete', method: 'DELETE', path: '/api/menu/:id', title: 'Delete Menu Item', requiresAuth: true },
-  {
-    id: 'menu-toggle-availability',
-    method: 'PATCH',
-    path: '/api/menu/:id/toggle-availability',
-    title: 'Toggle Availability',
-    requiresAuth: true
-  },
-  {
-    id: 'menu-toggle-featured',
-    method: 'PATCH',
-    path: '/api/menu/:id/toggle-featured',
-    title: 'Toggle Featured Status',
-    requiresAuth: true
-  },
-
   // Table Categories (Public)
   {
     id: 'table-categories-get',

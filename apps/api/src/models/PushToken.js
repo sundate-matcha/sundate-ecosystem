@@ -74,18 +74,15 @@ pushTokenSchema.statics.getActiveTokens = async function (userId = null) {
   if (userId) {
     query.userId = userId
   }
-  return this.find(query)
+  return await this.find(query)
 }
 
 // Static method to deactivate old tokens (not used in 30 days)
 pushTokenSchema.statics.deactivateOldTokens = async function () {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  
-  return this.updateMany(
-    { lastUsed: { $lt: thirtyDaysAgo }, isActive: true },
-    { isActive: false }
-  )
+
+  return this.updateMany({ lastUsed: { $lt: thirtyDaysAgo }, isActive: true }, { isActive: false })
 }
 
 const PushToken = mongoose.model('PushToken', pushTokenSchema)

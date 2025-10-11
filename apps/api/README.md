@@ -1,12 +1,13 @@
 # Sundate Matcha API
 
-A comprehensive Express.js backend API for the Sundate Matcha website, featuring table reservations, menu management, and contact form handling.
+A comprehensive Express.js backend API for the Sundate Matcha website, featuring table reservations, contact form handling, and notification management.
 
 ## Features
 
 - **Table Reservations**: Full CRUD operations for table bookings with availability checking
-- **Menu Management**: Comprehensive menu item management with categories, dietary options, and search
 - **Contact System**: Contact form handling with priority management and staff assignment
+- **Notification Management**: Push notifications and in-app notification system
+- **User Authentication**: Secure user registration, login, and profile management
 - **MongoDB Integration**: Robust data models with validation and business logic
 - **RESTful API**: Clean, well-documented REST endpoints
 - **Input Validation**: Comprehensive validation using express-validator
@@ -81,18 +82,6 @@ pnpm build
 - `DELETE /api/reservations/:id` - Delete reservation
 - `GET /api/reservations/availability/check` - Check availability
 
-### Menu
-- `GET /api/menu` - Get all menu items
-- `POST /api/menu` - Create new menu item
-- `GET /api/menu/:id` - Get specific menu item
-- `PUT /api/menu/:id` - Update menu item
-- `DELETE /api/menu/:id` - Delete menu item
-- `GET /api/menu/categories` - Get all categories
-- `GET /api/menu/featured` - Get featured items
-- `GET /api/menu/category/:category` - Get items by category
-- `GET /api/menu/search` - Search menu items
-- `GET /api/menu/dietary/:dietary` - Get items by dietary restrictions
-
 ### Contact
 - `GET /api/contact` - Get all contact submissions
 - `POST /api/contact` - Submit contact form
@@ -116,12 +105,6 @@ pnpm build
 - Special requests and status tracking
 - Business logic for availability checking
 
-### MenuItem
-- Item details (name, description, price, category)
-- Dietary information (allergens, dietary options)
-- Nutritional information (calories, protein, carbs, fat)
-- Availability and featured status
-
 ### Contact
 - Contact information (name, email, phone, subject, message)
 - Category and priority classification
@@ -135,12 +118,6 @@ pnpm build
 - Duplicate reservation prevention
 - Business hours validation
 - Capacity management
-
-### Menu Management
-- Category-based organization
-- Dietary restriction filtering
-- Search functionality
-- Featured item highlighting
 
 ### Contact Management
 - Priority-based routing
@@ -160,7 +137,6 @@ pnpm build
 
 - **Authentication**: JWT-based user authentication
 - **Email Integration**: Automated email notifications
-- **File Uploads**: Image management for menu items
 - **Analytics**: Advanced reporting and analytics
 - **Real-time Updates**: WebSocket integration for live updates
 - **Payment Integration**: Online payment processing
