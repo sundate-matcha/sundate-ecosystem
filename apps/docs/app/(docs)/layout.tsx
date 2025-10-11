@@ -1,5 +1,7 @@
 import { Code, Github, ExternalLink } from 'lucide-react'
+import Image from 'next/image'
 import { Sidebar } from '@/components/Sidebar'
+import { API_URL } from '@/lib/constants'
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,7 +12,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-red-700 to-red-600 rounded-lg flex items-center justify-center">
-                <Code className="w-6 h-6 text-amber-100" />
+                <Image src="/logo.png" alt="Sundate Matcha" width={24} height={24} />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-neutral-900 dark:text-white">Sundate Matcha API</h1>
@@ -19,7 +21,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             </div>
             <div className="flex items-center space-x-4">
               <a
-                href="https://github.com/sundate-matcha/sundate-ecosystem/tree/main/apps/api/"
+                href="https://github.com/sundate-matcha/sundate-ecosystem/tree/main/apps/docs/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
@@ -28,7 +30,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
                 <span className="hidden sm:inline">GitHub</span>
               </a>
               <a
-                href="/api/health"
+                href={`${API_URL}/api/health`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"

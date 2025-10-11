@@ -1,4 +1,4 @@
-import { Calendar, UtensilsCrossed, Table, Shield } from 'lucide-react'
+import { Calendar, UtensilsCrossed, Table, Shield, Bell, Smartphone } from 'lucide-react'
 import { API_URL } from '@/lib/constants'
 
 export const metadata = {
@@ -16,7 +16,7 @@ export default function OverviewPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
           <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4">
             <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -57,6 +57,28 @@ export default function OverviewPage() {
           <p className="text-neutral-600 dark:text-neutral-400">
             Secure user registration, login, logout, and profile management with JWT tokens and role-based access
             control.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
+          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-4">
+            <Bell className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Notifications</h3>
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Manage user notifications, track read status, archive notifications, and handle notification history
+            for reservation updates and system messages.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
+          <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center mb-4">
+            <Smartphone className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">Push Tokens</h3>
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Register and manage push notification tokens for mobile and web applications, track device usage,
+            and send targeted notifications.
           </p>
         </div>
       </div>

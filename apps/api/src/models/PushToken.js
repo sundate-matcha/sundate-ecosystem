@@ -74,7 +74,7 @@ pushTokenSchema.statics.getActiveTokens = async function (userId = null) {
   if (userId) {
     query.userId = userId
   }
-  return this.find(query)
+  return await this.find(query)
 }
 
 // Static method to deactivate old tokens (not used in 30 days)

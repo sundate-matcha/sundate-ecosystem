@@ -26,6 +26,9 @@ export const authenticateToken = async (req, res, next) => {
       });
     }
 
+    // Update last login
+    await user.updateLastLogin();
+
     req.user = user;
     next();
   } catch (error) {
