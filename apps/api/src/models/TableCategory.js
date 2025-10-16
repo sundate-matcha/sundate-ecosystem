@@ -32,6 +32,11 @@ const tableCategorySchema = new mongoose.Schema({
     min: [0, 'Price cannot be negative'],
     default: 0,
   },
+  isCountGuests: {
+    // if true, the capacity is the number of guests, otherwise it is the number of tables (reservations)
+    type: Boolean,
+    default: false,
+  },
   capacity: {
     type: Number,
     required: [true, 'Capacity is required'],

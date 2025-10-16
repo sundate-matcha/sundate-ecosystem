@@ -574,18 +574,7 @@ export default function TestingPage() {
                           selectedEndpoint === endpoint.id && 'bg-blue-100 dark:bg-blue-900/30'
                         )}>
                         <div className="flex items-center space-x-2">
-                          <span
-                            className={cn(
-                              'text-xs font-semibold px-2 py-1 rounded',
-                              endpoint.method === 'GET' &&
-                                'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
-                              endpoint.method === 'POST' &&
-                                'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-                              endpoint.method === 'PUT' &&
-                                'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
-                              endpoint.method === 'DELETE' &&
-                                'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                            )}>
+                          <span className={cn('method-badge', endpoint.method.toLowerCase())}>
                             {endpoint.method}
                           </span>
                           <code className="text-sm font-mono text-neutral-600 dark:text-neutral-300">

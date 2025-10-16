@@ -21,11 +21,15 @@ jobs:
     name: Deploy API Application
     runs-on: [self-hosted, dellbuntu]
     env:
+      NGINX_PORT: 88
+      BASE_API_URL: '/api'
       MONGO_URI: ${{ secrets.MONGO_URI }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-      BASE_API_URL: '/api'
-      NGINX_PORT: 88
+      ENABLE_PUSH_NOTIFICATIONS: ${{ secrets.ENABLE_PUSH_NOTIFICATIONS }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      REDIS_TLS_ENABLED: ${{ secrets.REDIS_TLS_ENABLED }}
+      # The other environment variables are needless, can be default values
     steps:
       - uses: actions/checkout@v4
 
@@ -34,8 +38,11 @@ jobs:
           cat <<EOF > apps/api/.env
           MONGO_URI=${{ env.MONGO_URI }}
           BASE_API_URL=${{ env.BASE_API_URL }}
+          ENABLE_PUSH_NOTIFICATIONS=${{ env.ENABLE_PUSH_NOTIFICATIONS }}
           JWT_SECRET=${{ env.JWT_SECRET }}
           JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
+          REDIS_URL=${{ env.REDIS_URL }}
+          REDIS_TLS_ENABLED=${{ env.REDIS_TLS_ENABLED }}
           EOF
 
       - name: Create nginx .env
