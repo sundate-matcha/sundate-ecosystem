@@ -23,15 +23,9 @@ const reservationSchema = new mongoose.Schema(
     },
     date: {
       type: Date,
-      required: [true, 'Date is required'],
-      validate: {
-        validator: function (value) {
-          return value > new Date()
-        },
-        message: 'Reservation date must be in the future'
-      }
+      required: [true, 'Date is required']
+      // validate manually in the pre-save middleware
     },
-    // TODO: the allowed time slots are dynamic, handled by the start and end time from frontend
     time: {
       type: String,
       required: [true, 'Time slot is required'],
@@ -42,14 +36,6 @@ const reservationSchema = new mongoose.Schema(
         message: 'Time slot must be in the format HH:mm'
       }
     },
-    // start: {
-    //   type: String,
-    //   required: [true, 'Start time is required'],
-    // },
-    // end: {
-    //   type: String,
-    //   required: [true, 'End time is required'],
-    // },
     tableCategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'TableCategory',
@@ -68,7 +54,7 @@ const reservationSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'cancelled', 'completed'], // confirmed is the automated status after notification is sent
+      enum: ['pending', 'confirmed', 'cancelled'],
       default: 'pending'
     },
     notes: {
@@ -100,29 +86,22 @@ reservationSchema.virtual('formattedTime').get(function () {
 })
 
 // Index for efficient queries
-reservationSchema.index({ date: 1, start: 1, end: 1, status: 1 })
-reservationSchema.index({ email: 1 })
+reservationSchema.index({ date: 1, time: 1 })
 reservationSchema.index({ status: 1 })
 
 // Pre-save middleware to validate date and time combination
 reservationSchema.pre('save', function (next) {
-  // Check if the date is a valid day (not Sunday for example)
-  const dayOfWeek = this.date.getDay()
-  if (dayOfWeek === 0) {
-    // Sunday
-    this.invalidate('date', 'We are closed on Sundays')
+  // check if the date is in the future
+  const message = 'Reservation must be in the future'
+  if (this.date < new Date()) {
+    this.invalidate('date', message)
+  } else if (this.date == new Date()) {
+    const now = new Date()
+    const [hours, minutes] = this.time.split(':').map(Number)
+    if (hours < now.getHours() || (hours == now.getHours() && minutes <= now.getMinutes())) {
+      this.invalidate('time', message)
+    }
   }
-
-  // Check if the time is within business hours
-  const hour = parseInt(this.time.split(':')[0])
-  const isPM = this.time.includes('PM')
-  const actualHour = isPM && hour !== 12 ? hour + 12 : hour
-
-  if (actualHour < 18 || actualHour > 21) {
-    // 6 PM to 9 PM
-    this.invalidate('time', 'Please select a time between 6:00 PM and 9:00 PM')
-  }
-
   next()
 })
 
@@ -131,7 +110,7 @@ reservationSchema.statics.checkAvailability = async function (date, time, capaci
   const existingReservations = await this.find({
     date: date,
     time: time,
-    status: { $in: ['pending', 'confirmed'] }
+    status: { $ne: 'cancelled' }
   })
 
   const totalGuests = existingReservations.reduce((sum, res) => sum + res.guests, 0)

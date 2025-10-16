@@ -111,16 +111,18 @@ router.post('/', validateReservation, async (req, res) => {
 
     // Check for existing reservation by same person at same time
     const existingReservation = await Reservation.findOne({
-      email,
+      name,
+      phone,
       date,
       time,
-      status: { $in: ['pending', 'confirmed'] }
+      status: { $ne: 'cancelled' }
     })
 
     if (existingReservation) {
       return res.status(400).json({
         error: 'Duplicate reservation',
-        message: 'You already have a reservation at this time'
+        message:
+          'You already have a reservation at this time. Please cancel your existing reservation to make a new one.'
       })
     }
 
