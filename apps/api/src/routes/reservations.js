@@ -4,8 +4,21 @@ import Reservation from '../models/Reservation.js'
 import TableCategory from '../models/TableCategory.js'
 import notificationService from '../services/notificationService.js'
 import logService from '../services/logService.js'
+import { cacheMiddleware, invalidateCacheMiddleware } from '../middleware/cache.js'
+import { invalidateResourceCache } from '../utils/cacheHelpers.js'
 
 const router = express.Router()
+
+// Cache middleware configuration for reservations
+const reservationCache = cacheMiddleware({
+  prefix: 'reservations',
+  ttl: 300 // 5 minutes
+})
+
+// Cache invalidation middleware for reservation mutations
+const invalidateReservationCache = invalidateCacheMiddleware({
+  resource: 'reservations'
+})
 
 // Validation middleware
 const validateReservation = [
@@ -19,7 +32,8 @@ const validateReservation = [
     .custom(value => {
       const date = new Date(value)
       const now = new Date()
-      if (date <= now) {
+      now.setHours(0, 0, 0, 0)
+      if (date.getTime() < now.getTime()) {
         throw new Error('Reservation date must be in the future')
       }
       return true
@@ -34,7 +48,7 @@ const validateReservation = [
 ]
 
 // GET /api/reservations - Get all reservations (admin only)
-router.get('/', async (req, res) => {
+router.get('/', reservationCache, async (req, res) => {
   try {
     const { page = 1, limit = 10, status, date, sortBy = 'date', sortOrder = 'asc' } = req.query
 
@@ -70,7 +84,7 @@ router.get('/', async (req, res) => {
 })
 
 // GET /api/reservations/:id - Get a specific reservation
-router.get('/:id', async (req, res) => {
+router.get('/:id', reservationCache, async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id)
     if (!reservation) {
@@ -83,7 +97,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // POST /api/reservations - Create a new reservation
-router.post('/', validateReservation, async (req, res) => {
+router.post('/', invalidateReservationCache, validateReservation, async (req, res) => {
   try {
     // Check for validation errors
     const errors = validationResult(req)
@@ -98,9 +112,14 @@ router.post('/', validateReservation, async (req, res) => {
 
     // Get the capacity of the table category
     const tableCategory = await TableCategory.findById(tableCategoryId)
-
+    if (!tableCategory) {
+      return res.status(400).json({
+        error: 'Table information not found',
+        message: 'The information of the table you selected does not exist'
+      })
+    }
     // Check availability
-    const availability = await Reservation.checkAvailability(date, time, tableCategory.capacity ?? 0, guests)
+    const availability = await Reservation.checkAvailability(date, time, tableCategoryId, guests ?? 1, tableCategory)
     if (!availability.available) {
       return res.status(400).json({
         error: 'Reservation not available',
@@ -149,6 +168,9 @@ router.post('/', validateReservation, async (req, res) => {
       .sendReservationCreatedNotification(reservation, log._id)
       .catch(error => console.error('Error sending notification:', error))
 
+    // Invalidate cache
+    await invalidateResourceCache('reservations')
+
     res.status(201).json({
       confirmationNumber: reservation._id.toString().slice(-8).toUpperCase(),
       message: 'Reservation created successfully',
@@ -160,7 +182,7 @@ router.post('/', validateReservation, async (req, res) => {
 })
 
 // PUT /api/reservations/:id - Update a reservation
-router.put('/:id', validateReservation, async (req, res) => {
+router.put('/:id', invalidateReservationCache, validateReservation, async (req, res) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -184,6 +206,14 @@ router.put('/:id', validateReservation, async (req, res) => {
     }
 
     // Check availability for new time/date if changed
+    const tableCategory = await TableCategory.findById(reservation.tableCategory)
+    if (!tableCategory) {
+      return res.status(400).json({
+        error: 'Table information not found',
+        message: 'The information of the table you selected does not exist'
+      })
+    }
+
     if (
       req.body.date !== reservation.date ||
       req.body.time !== reservation.time ||
@@ -192,13 +222,14 @@ router.put('/:id', validateReservation, async (req, res) => {
       const availability = await Reservation.checkAvailability(
         req.body.date || reservation.date,
         req.body.time || reservation.time,
-        req.body.guests || reservation.guests
+        req.body.guests || reservation.guests,
+        tableCategory
       )
 
       if (!availability.available) {
         return res.status(400).json({
           error: 'Reservation not available',
-          message: 'The requested time/date is not available',
+          message: `Sorry, we cannot accommodate ${req.body.guests} guests at ${req.body.time} on ${new Date(req.body.date).toLocaleDateString()}. Current occupancy: ${availability.currentOccupancy}/${availability.remainingCapacity + availability.currentOccupancy}`,
           availability
         })
       }
@@ -206,7 +237,17 @@ router.put('/:id', validateReservation, async (req, res) => {
 
     // Track changes
     const changes = {}
-    const updateFields = ['name', 'email', 'phone', 'date', 'time', 'guests', 'specialRequests', 'notes']
+    const updateFields = [
+      'name',
+      'email',
+      'phone',
+      'date',
+      'time',
+      'tableCategory',
+      'guests',
+      'specialRequests',
+      'notes'
+    ]
     updateFields.forEach(field => {
       if (req.body[field] !== undefined && req.body[field] !== reservation[field]) {
         changes[field] = {
@@ -231,6 +272,9 @@ router.put('/:id', validateReservation, async (req, res) => {
         .catch(error => console.error('Error sending notification:', error))
     }
 
+    // Invalidate cache
+    await invalidateResourceCache('reservations')
+
     res.json({
       message: 'Reservation updated successfully',
       reservation
@@ -241,7 +285,7 @@ router.put('/:id', validateReservation, async (req, res) => {
 })
 
 // PATCH /api/reservations/:id/confirm - Confirm a reservation
-router.patch('/:id/confirm', async (req, res) => {
+router.patch('/:id/confirm', invalidateReservationCache, async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id)
     if (!reservation) {
@@ -266,6 +310,9 @@ router.patch('/:id/confirm', async (req, res) => {
       .sendReservationConfirmedNotification(reservation, log._id)
       .catch(error => console.error('Error sending notification:', error))
 
+    // Invalidate cache
+    await invalidateResourceCache('reservations')
+
     res.json({
       message: 'Reservation confirmed successfully',
       reservation
@@ -276,7 +323,7 @@ router.patch('/:id/confirm', async (req, res) => {
 })
 
 // PATCH /api/reservations/:id/cancel - Cancel a reservation
-router.patch('/:id/cancel', async (req, res) => {
+router.patch('/:id/cancel', invalidateReservationCache, async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id)
     if (!reservation) {
@@ -302,6 +349,9 @@ router.patch('/:id/cancel', async (req, res) => {
       .sendReservationCancelledNotification(reservation, log._id)
       .catch(error => console.error('Error sending notification:', error))
 
+    // Invalidate cache
+    await invalidateResourceCache('reservations')
+
     res.json({
       message: 'Reservation cancelled successfully',
       reservation
@@ -312,7 +362,7 @@ router.patch('/:id/cancel', async (req, res) => {
 })
 
 // DELETE /api/reservations/:id - Delete a reservation
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', invalidateReservationCache, async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id)
     if (!reservation) {
@@ -325,6 +375,9 @@ router.delete('/:id', async (req, res) => {
 
     await Reservation.findByIdAndDelete(req.params.id)
 
+    // Invalidate cache
+    await invalidateResourceCache('reservations')
+
     res.json({
       message: 'Reservation deleted successfully'
     })
@@ -334,9 +387,9 @@ router.delete('/:id', async (req, res) => {
 })
 
 // GET /api/reservations/availability/check - Check availability
-router.get('/availability/check', async (req, res) => {
+router.get('/availability/check', reservationCache, async (req, res) => {
   try {
-    const { date, time, guests } = req.query
+    const { date, time, guests, tableCategory: tableCategoryId } = req.query
 
     if (!date || !time || !guests) {
       return res.status(400).json({
@@ -345,7 +398,14 @@ router.get('/availability/check', async (req, res) => {
       })
     }
 
-    const availability = await Reservation.checkAvailability(date, time, parseInt(guests))
+    const availability = await Reservation.checkAvailability(date, time, parseInt(guests), tableCategory)
+    if (!availability.available) {
+      return res.status(400).json({
+        error: 'Reservation not available',
+        message: 'The requested time/date is not available',
+        availability
+      })
+    }
 
     res.json({
       date,

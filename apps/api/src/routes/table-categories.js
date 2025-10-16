@@ -2,8 +2,20 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import TableCategory from '../models/TableCategory.js';
 import { authenticateToken, requireAdmin, requireStaff } from '../middleware/auth.js';
+import { cacheMiddleware, invalidateCacheMiddleware } from '../middleware/cache.js';
 
 const router = express.Router();
+
+// Cache middleware configuration for table categories
+const tableCategoryCache = cacheMiddleware({ 
+  prefix: 'table-categories',
+  ttl: 600 // 10 minutes (changes less frequently)
+});
+
+// Cache invalidation middleware
+const invalidateTableCategoryCache = invalidateCacheMiddleware({ 
+  resource: 'table-categories' 
+});
 
 // Validation middleware
 const validateTableCategory = [
@@ -42,7 +54,7 @@ const validateTableCategory = [
 ];
 
 // GET /api/table-categories - Get all table categories
-router.get('/', async (req, res) => {
+router.get('/', tableCategoryCache, async (req, res) => {
   try {
     const { 
       isActive, 
@@ -119,7 +131,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/table-categories/public - Get public table categories (active only)
-router.get('/public', async (req, res) => {
+router.get('/public', tableCategoryCache, async (req, res) => {
   try {
     const { 
       search, 
@@ -190,7 +202,7 @@ router.get('/public', async (req, res) => {
 });
 
 // GET /api/table-categories/active - Get active table categories
-router.get('/active', async (req, res) => {
+router.get('/active', tableCategoryCache, async (req, res) => {
   try {
     const activeCategories = await TableCategory.find({ isActive: true })
       .sort({ sortOrder: 1, name: 1 })
@@ -203,7 +215,7 @@ router.get('/active', async (req, res) => {
 });
 
 // GET /api/table-categories/stats - Get table category statistics (admin only)
-router.get('/stats', authenticateToken, requireStaff, async (req, res) => {
+router.get('/stats', authenticateToken, requireStaff, tableCategoryCache, async (req, res) => {
   try {
     const totalCategories = await TableCategory.countDocuments();
     const activeCategories = await TableCategory.countDocuments({ isActive: true });
@@ -239,7 +251,7 @@ router.get('/stats', authenticateToken, requireStaff, async (req, res) => {
 });
 
 // GET /api/table-categories/:id - Get a specific table category
-router.get('/:id', async (req, res) => {
+router.get('/:id', tableCategoryCache, async (req, res) => {
   try {
     const tableCategory = await TableCategory.findById(req.params.id);
     if (!tableCategory) {
@@ -252,7 +264,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/table-categories - Create a new table category (admin only)
-router.post('/', authenticateToken, requireAdmin, validateTableCategory, async (req, res) => {
+router.post('/', invalidateTableCategoryCache, authenticateToken, requireAdmin, validateTableCategory, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -288,7 +300,7 @@ router.post('/', authenticateToken, requireAdmin, validateTableCategory, async (
 });
 
 // PUT /api/table-categories/:id - Update a table category (admin only)
-router.put('/:id', authenticateToken, requireAdmin, validateTableCategory, async (req, res) => {
+router.put('/:id', invalidateTableCategoryCache, authenticateToken, requireAdmin, validateTableCategory, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -332,7 +344,7 @@ router.put('/:id', authenticateToken, requireAdmin, validateTableCategory, async
 });
 
 // PATCH /api/table-categories/:id/toggle-active - Toggle active status (admin only)
-router.patch('/:id/toggle-active', authenticateToken, requireAdmin, async (req, res) => {
+router.patch('/:id/toggle-active', invalidateTableCategoryCache, authenticateToken, requireAdmin, async (req, res) => {
   try {
     const tableCategory = await TableCategory.findById(req.params.id);
     if (!tableCategory) {
@@ -353,7 +365,7 @@ router.patch('/:id/toggle-active', authenticateToken, requireAdmin, async (req, 
 });
 
 // PATCH /api/table-categories/:id/sort-order - Update sort order (admin only)
-router.patch('/:id/sort-order', authenticateToken, requireAdmin, async (req, res) => {
+router.patch('/:id/sort-order', invalidateTableCategoryCache, authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { sortOrder } = req.body;
     
@@ -383,7 +395,7 @@ router.patch('/:id/sort-order', authenticateToken, requireAdmin, async (req, res
 });
 
 // PATCH /api/table-categories/:id/gallery - Update gallery images (admin only)
-router.patch('/:id/gallery', authenticateToken, requireAdmin, async (req, res) => {
+router.patch('/:id/gallery', invalidateTableCategoryCache, authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { gallery } = req.body;
     
@@ -413,7 +425,7 @@ router.patch('/:id/gallery', authenticateToken, requireAdmin, async (req, res) =
 });
 
 // DELETE /api/table-categories/:id - Delete a table category (admin only)
-router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
+router.delete('/:id', invalidateTableCategoryCache, authenticateToken, requireAdmin, async (req, res) => {
   try {
     const tableCategory = await TableCategory.findById(req.params.id);
     if (!tableCategory) {
@@ -436,7 +448,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // POST /api/table-categories/bulk-update - Bulk update table categories (admin only)
-router.post('/bulk-update', authenticateToken, requireAdmin, async (req, res) => {
+router.post('/bulk-update', invalidateTableCategoryCache, authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { updates } = req.body;
     

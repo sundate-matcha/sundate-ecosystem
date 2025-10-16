@@ -50,6 +50,11 @@ jobs:
           # JWT - Repository secrets
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          # Notification - Repository secrets
+          ENABLE_PUSH_NOTIFICATIONS: ${{ secrets.ENABLE_PUSH_NOTIFICATIONS }}
+          # Redis - Repository secrets
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          REDIS_TLS_ENABLED: ${{ secrets.REDIS_TLS_ENABLED }}
           # Nginx - Repository secrets
           NGINX_PORT: ${{ secrets.NGINX_PORT }}
           NGINX_DOMAIN: ${{ secrets.NGINX_DOMAIN }}
@@ -70,6 +75,9 @@ jobs:
             JWT_SECRET=${{ env.JWT_SECRET }}
             JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
             BASE_API_URL=${{ env.BASE_API_URL }}
+            ENABLE_PUSH_NOTIFICATIONS=${{ env.ENABLE_PUSH_NOTIFICATIONS }}
+            REDIS_URL=${{ env.REDIS_URL }}
+            REDIS_TLS_ENABLED=${{ env.REDIS_TLS_ENABLED }}
             EOF
 
             cat <<EOF > nginx/.env

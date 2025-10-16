@@ -106,20 +106,27 @@ reservationSchema.pre('save', function (next) {
 })
 
 // Static method to check availability
-reservationSchema.statics.checkAvailability = async function (date, time, capacity = 1, guests = 1) {
+reservationSchema.statics.checkAvailability = async function (date, time, tableCategoryId, guests, tableCategory) {
   const existingReservations = await this.find({
     date: date,
     time: time,
+    tableCategory: tableCategoryId,
     status: { $ne: 'cancelled' }
   })
-
+  if (!tableCategory.isCountGuests) {
+    // if the table category is not counting guests, we only need to check the number of reservations
+    return {
+      available: existingReservations.length + 1 <= tableCategory.capacity,
+      currentOccupancy: existingReservations.length,
+      remainingCapacity: tableCategory.capacity - existingReservations.length
+    }
+  }
+  // if the table category is counting guests, we need to check the number of guests
   const totalGuests = existingReservations.reduce((sum, res) => sum + res.guests, 0)
-  const maxCapacity = capacity
-
   return {
-    available: totalGuests + guests <= maxCapacity,
+    available: totalGuests + guests <= tableCategory.capacity,
     currentOccupancy: totalGuests,
-    remainingCapacity: maxCapacity - totalGuests
+    remainingCapacity: tableCategory.capacity - totalGuests
   }
 }
 
