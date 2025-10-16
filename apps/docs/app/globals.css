@@ -89,8 +89,8 @@ code {
   @apply border-l-4 border-blue-500 pl-4 py-2 my-4;
 }
 
-.endpoint.get { @apply border-green-500; }
-.endpoint.post { @apply border-blue-500; }
+.endpoint.get { @apply border-blue-500; }
+.endpoint.post { @apply border-green-500; }
 .endpoint.put { @apply border-yellow-500; }
 .endpoint.patch { @apply border-orange-500; }
 .endpoint.delete { @apply border-red-500; }
@@ -100,11 +100,32 @@ code {
   @apply inline-block px-2 py-1 text-xs font-semibold rounded text-white;
 }
 
-.method.get { @apply bg-green-600; }
-.method.post { @apply bg-blue-600; }
+.method.get { @apply bg-blue-600; }
+.method.post { @apply bg-green-600; }
 .method.put { @apply bg-yellow-600; }
 .method.patch { @apply bg-orange-600; }
 .method.delete { @apply bg-red-600; }
+
+/* Method badge (light variant for dropdowns/lists) */
+.method-badge {
+  @apply text-xs font-semibold px-2 py-1 rounded;
+}
+
+.method-badge.get { 
+  @apply bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300; 
+}
+.method-badge.post { 
+  @apply bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300; 
+}
+.method-badge.put { 
+  @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300; 
+}
+.method-badge.patch { 
+  @apply bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300; 
+}
+.method-badge.delete { 
+  @apply bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300; 
+}
 
 /* Custom Select Styling */
 select {
