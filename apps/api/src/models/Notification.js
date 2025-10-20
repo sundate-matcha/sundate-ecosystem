@@ -33,18 +33,19 @@ const notificationSchema = new mongoose.Schema(
       trim: true,
       maxlength: [500, 'Body cannot exceed 500 characters']
     },
-    data: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {}
-    },
     reservationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Reservation'
     },
     priority: {
       type: String,
-      enum: ['low', 'normal', 'high', 'urgent'],
+      enum: ['low', 'normal', 'high'],
       default: 'normal'
+    },
+    isTimeSensitive: {
+      // send as soon as possible
+      type: Boolean,
+      default: false
     },
     isRead: {
       type: Boolean,
@@ -67,10 +68,6 @@ const notificationSchema = new mongoose.Schema(
     },
     archivedAt: {
       type: Date
-    },
-    expiresAt: {
-      type: Date,
-      index: true
     },
     actionUrl: {
       type: String,
@@ -96,7 +93,7 @@ const notificationSchema = new mongoose.Schema(
 notificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 })
 notificationSchema.index({ userId: 1, isArchived: 1, createdAt: -1 })
 notificationSchema.index({ createdAt: -1 })
-notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+notificationSchema.index({ isTimeSensitive: 1, createdAt: -1 })
 
 // Virtual for time ago
 notificationSchema.virtual('timeAgo').get(function () {
@@ -172,7 +169,8 @@ notificationSchema.statics.getUserNotifications = async function (
     limit = 20,
     includeRead = true,
     includeArchived = false,
-    type = null
+    type = null,
+    prioritizeTimeSensitive = true
   } = options
 
   const query = { userId }
@@ -189,8 +187,13 @@ notificationSchema.statics.getUserNotifications = async function (
     query.type = type
   }
 
+  // Sort by time-sensitive first, then by creation date
+  const sortOrder = prioritizeTimeSensitive 
+    ? { isTimeSensitive: -1, createdAt: -1 }
+    : { createdAt: -1 }
+
   const notifications = await this.find(query)
-    .sort({ createdAt: -1 })
+    .sort(sortOrder)
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .populate('reservationId')
@@ -204,6 +207,49 @@ notificationSchema.statics.getUserNotifications = async function (
     totalPages: Math.ceil(total / limit),
     currentPage: parseInt(page),
     unreadCount: await this.getUnreadCount(userId)
+  }
+}
+
+// Static method to get time-sensitive notifications
+notificationSchema.statics.getTimeSensitiveNotifications = async function (
+  userId = null,
+  options = {}
+) {
+  const {
+    page = 1,
+    limit = 20,
+    includeRead = true,
+    includeArchived = false
+  } = options
+
+  const query = { isTimeSensitive: true }
+
+  if (userId) {
+    query.userId = userId
+  }
+
+  if (!includeRead) {
+    query.isRead = false
+  }
+
+  if (!includeArchived) {
+    query.isArchived = false
+  }
+
+  const notifications = await this.find(query)
+    .sort({ createdAt: -1 })
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .populate('reservationId')
+    .exec()
+
+  const total = await this.countDocuments(query)
+
+  return {
+    notifications,
+    total,
+    totalPages: Math.ceil(total / limit),
+    currentPage: parseInt(page)
   }
 }
 

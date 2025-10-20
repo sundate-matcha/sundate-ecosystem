@@ -6,6 +6,7 @@ import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import { env } from './config/env.js'
+import { getRedisClient, isRedisAvailable } from './config/redis.js'
 
 // Import routes
 import reservationRoutes from './routes/reservations.js'
@@ -15,6 +16,7 @@ import tableCategoryRoutes from './routes/table-categories.js'
 import pushTokenRoutes from './routes/pushTokens.js'
 import logRoutes from './routes/logs.js'
 import notificationRoutes from './routes/notifications.js'
+import eventRoutes from './routes/events.js'
 
 // Load environment variables
 dotenv.config()
@@ -50,16 +52,37 @@ app.use(morgan('combined'))
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(env.MONGO_URI)
-    console.log(`MongoDB Connected: ${conn.connection.host}`)
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`)
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error.message)
+    console.error('❌ Error connecting to MongoDB:', error.message)
     process.exit(1)
+  }
+}
+
+// Redis connection
+const connectRedis = async () => {
+  try {
+    const redis = getRedisClient()
+    if (redis) {
+      const available = await isRedisAvailable()
+      if (available) {
+        console.log('✅ Redis Connected and ready')
+      } else {
+        console.warn('⚠️  Redis client initialized but not responding')
+      }
+    } else {
+      console.warn('⚠️  Redis not configured - caching disabled')
+    }
+  } catch (error) {
+    console.error('⚠️  Redis connection error:', error.message)
+    console.log('Continuing without Redis caching...')
   }
 }
 
 // Routes
 app.use(`${BASE_URL}/auth`, authRoutes)
 app.use(`${BASE_URL}/contact`, contactRoutes)
+app.use(`${BASE_URL}/events`, eventRoutes)
 app.use(`${BASE_URL}/logs`, logRoutes)
 app.use(`${BASE_URL}/notifications`, notificationRoutes)
 app.use(`${BASE_URL}/push-tokens`, pushTokenRoutes)
@@ -67,11 +90,18 @@ app.use(`${BASE_URL}/reservations`, reservationRoutes)
 app.use(`${BASE_URL}/table-categories`, tableCategoryRoutes)
 
 // Health check endpoint
-app.get(`${BASE_URL}/health`, (req, res) => {
+app.get(`${BASE_URL}/health`, async (req, res) => {
+  const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  const redisStatus = await isRedisAvailable() ? 'connected' : 'disconnected'
+  
   res.json({
     status: 'OK',
     message: 'Sundate Matcha API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    services: {
+      mongodb: mongoStatus,
+      redis: redisStatus
+    }
   })
 })
 
@@ -92,6 +122,7 @@ app.use('*', (req, res) => {
 // Start server
 const startServer = async () => {
   await connectDB()
+  await connectRedis()
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`)
     console.log(`📱 Environment: ${env.NODE_ENV}`)

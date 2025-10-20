@@ -1,3 +1,12 @@
+import dotenv from 'dotenv'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+export const __filename = fileURLToPath(import.meta.url)
+export const __dirname = dirname(__filename)
+
+dotenv.config()
+
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: process.env.PORT || 5001,
@@ -14,4 +23,9 @@ export const env = {
   // Logging settings
   LOG_RETENTION_DAYS: parseInt(process.env.LOG_RETENTION_DAYS) || 90,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+  
+  // Redis settings
+  REDIS_URL: process.env.REDIS_URL, // Connection string
+  REDIS_TLS_ENABLED: process.env.REDIS_TLS_ENABLED === 'true' || false,
+  REDIS_CACHE_TTL: parseInt(process.env.REDIS_CACHE_TTL) || 300, // 5 minutes default
 }
