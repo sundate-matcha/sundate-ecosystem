@@ -1,6 +1,7 @@
 import express from 'express'
 import { body, validationResult } from 'express-validator'
 import Notification from '../models/Notification.js'
+import sseService from '../services/sseService.js'
 
 const router = express.Router()
 
@@ -14,7 +15,8 @@ router.get('/', async (req, res) => {
       limit = 20,
       includeRead = 'true',
       includeArchived = 'false',
-      type
+      type,
+      prioritizeTimeSensitive = 'true'
     } = req.query
 
     // In production, get userId from authenticated user (req.user._id)
@@ -33,7 +35,8 @@ router.get('/', async (req, res) => {
       limit: parseInt(limit),
       includeRead: includeRead === 'true',
       includeArchived: includeArchived === 'true',
-      type
+      type,
+      prioritizeTimeSensitive: prioritizeTimeSensitive === 'true'
     })
 
     res.json(result)
@@ -41,6 +44,44 @@ router.get('/', async (req, res) => {
     console.error('Error fetching notifications:', error)
     res.status(500).json({
       error: 'Failed to fetch notifications',
+      message: error.message
+    })
+  }
+})
+
+/**
+ * GET /api/notifications/time-sensitive - Get time-sensitive notifications
+ */
+router.get('/time-sensitive', async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      includeRead = 'true',
+      includeArchived = 'false'
+    } = req.query
+
+    const userId = req.query.userId || req.user?._id
+
+    if (!userId) {
+      return res.status(400).json({
+        error: 'User ID is required',
+        message: 'Please provide userId in query params or authenticate'
+      })
+    }
+
+    const result = await Notification.getTimeSensitiveNotifications(userId, {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      includeRead: includeRead === 'true',
+      includeArchived: includeArchived === 'true'
+    })
+
+    res.json(result)
+  } catch (error) {
+    console.error('Error fetching time-sensitive notifications:', error)
+    res.status(500).json({
+      error: 'Failed to fetch time-sensitive notifications',
       message: error.message
     })
   }
@@ -112,6 +153,11 @@ router.patch('/:id/read', async (req, res) => {
     }
 
     await notification.markAsRead()
+
+    // Broadcast SSE event (async, non-blocking)
+    sseService
+      .broadcastNotificationRead(notification._id, notification.userId)
+      .catch(error => console.error('Error broadcasting SSE event:', error))
 
     res.json({
       message: 'Notification marked as read',
@@ -293,6 +339,11 @@ router.post('/', [
     }
 
     const notification = await Notification.createNotification(req.body)
+
+    // Broadcast SSE event (async, non-blocking)
+    sseService
+      .broadcastNotificationCreated(notification, notification.userId)
+      .catch(error => console.error('Error broadcasting SSE event:', error))
 
     res.status(201).json({
       message: 'Notification created successfully',

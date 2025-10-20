@@ -16,7 +16,7 @@ class NotificationService {
    * @param {Array} tokens - Array of Expo push tokens
    * @param {String} title - Notification title
    * @param {String} body - Notification body
-   * @param {Object} data - Additional data to send
+   * @param {Object} data - Additional data to send (for push notifications only)
    * @returns {Object} Result object with success/failure counts
    */
   async sendPushNotification(tokens, title, body, data = {}) {
@@ -165,26 +165,26 @@ class NotificationService {
   async sendReservationCreatedNotification(reservation, logId = null, userId = null) {
     const title = '🎉 Reservation Created!'
     const body = `New reservation for ${reservation.name} on ${new Date(reservation.date).toLocaleDateString()} at ${reservation.time}`
-    const data = {
+    const pushData = {
       type: 'reservation_created',
       reservationId: reservation._id.toString(),
       screen: 'ReservationDetails'
     }
 
-    // Create in-app notification
+    // Create in-app notification (no data field, just reservationId for population)
     await this.createInAppNotification({
       userId,
       type: 'reservation_created',
       title,
       body,
-      data,
       reservationId: reservation._id,
       priority: 'high',
-      icon: '🎉'
+      icon: '🎉',
+      isTimeSensitive: false // New reservations are not time-sensitive by default
     })
 
     const tokens = await this.getActiveTokens(userId)
-    const result = await this.sendPushNotification(tokens, title, body, data)
+    const result = await this.sendPushNotification(tokens, title, body, pushData)
 
     // Update log if provided
     if (logId) {
@@ -203,26 +203,26 @@ class NotificationService {
   async sendReservationConfirmedNotification(reservation, logId = null, userId = null) {
     const title = '✅ Reservation Confirmed!'
     const body = `Reservation for ${reservation.name} on ${new Date(reservation.date).toLocaleDateString()} at ${reservation.time} has been confirmed`
-    const data = {
+    const pushData = {
       type: 'reservation_confirmed',
       reservationId: reservation._id.toString(),
       screen: 'ReservationDetails'
     }
 
-    // Create in-app notification
+    // Create in-app notification (no data field, just reservationId for population)
     await this.createInAppNotification({
       userId,
       type: 'reservation_confirmed',
       title,
       body,
-      data,
       reservationId: reservation._id,
       priority: 'high',
-      icon: '✅'
+      icon: '✅',
+      isTimeSensitive: true // Confirmations are time-sensitive
     })
 
     const tokens = await this.getActiveTokens(userId)
-    const result = await this.sendPushNotification(tokens, title, body, data)
+    const result = await this.sendPushNotification(tokens, title, body, pushData)
 
     // Update log if provided
     if (logId) {
@@ -241,26 +241,26 @@ class NotificationService {
   async sendReservationCancelledNotification(reservation, logId = null, userId = null) {
     const title = '❌ Reservation Cancelled'
     const body = `Reservation for ${reservation.name} on ${new Date(reservation.date).toLocaleDateString()} at ${reservation.time} has been cancelled`
-    const data = {
+    const pushData = {
       type: 'reservation_cancelled',
       reservationId: reservation._id.toString(),
       screen: 'ReservationDetails'
     }
 
-    // Create in-app notification
+    // Create in-app notification (no data field, just reservationId for population)
     await this.createInAppNotification({
       userId,
       type: 'reservation_cancelled',
       title,
       body,
-      data,
       reservationId: reservation._id,
       priority: 'high',
-      icon: '❌'
+      icon: '❌',
+      isTimeSensitive: true // Cancellations are time-sensitive
     })
 
     const tokens = await this.getActiveTokens(userId)
-    const result = await this.sendPushNotification(tokens, title, body, data)
+    const result = await this.sendPushNotification(tokens, title, body, pushData)
 
     // Update log if provided
     if (logId) {
@@ -281,27 +281,27 @@ class NotificationService {
     const title = '📝 Reservation Updated'
     const changesText = Object.keys(changes).join(', ')
     const body = `Reservation for ${reservation.name} has been updated. Changes: ${changesText}`
-    const data = {
+    const pushData = {
       type: 'reservation_updated',
       reservationId: reservation._id.toString(),
       changes,
       screen: 'ReservationDetails'
     }
 
-    // Create in-app notification
+    // Create in-app notification (no data field, just reservationId for population)
     await this.createInAppNotification({
       userId,
       type: 'reservation_updated',
       title,
       body,
-      data,
       reservationId: reservation._id,
       priority: 'normal',
-      icon: '📝'
+      icon: '📝',
+      isTimeSensitive: false // Updates are generally not time-sensitive
     })
 
     const tokens = await this.getActiveTokens(userId)
-    const result = await this.sendPushNotification(tokens, title, body, data)
+    const result = await this.sendPushNotification(tokens, title, body, pushData)
 
     // Update log if provided
     if (logId) {
@@ -413,6 +413,62 @@ class NotificationService {
       // Don't throw error - notification creation shouldn't break the flow
       return null
     }
+  }
+
+  /**
+   * Create time-sensitive notification
+   * @param {Object} notificationData - Notification data
+   * @returns {Object} Created notification
+   */
+  async createTimeSensitiveNotification(notificationData) {
+    try {
+      const notification = await Notification.createNotification({
+        ...notificationData,
+        isTimeSensitive: true,
+        priority: notificationData.priority || 'high',
+        isSent: true,
+        sentAt: new Date()
+      })
+      return notification
+    } catch (error) {
+      console.error('Error creating time-sensitive notification:', error)
+      return null
+    }
+  }
+
+  /**
+   * Send urgent notification (time-sensitive with high priority)
+   * @param {String} userId - User ID
+   * @param {String} title - Notification title
+   * @param {String} body - Notification body
+   * @param {String} type - Notification type
+   * @param {String} reservationId - Optional reservation ID
+   * @param {String} icon - Optional icon
+   */
+  async sendUrgentNotification(userId, title, body, type, reservationId = null, icon = '🚨') {
+    // Create time-sensitive in-app notification
+    await this.createTimeSensitiveNotification({
+      userId,
+      type,
+      title,
+      body,
+      reservationId,
+      priority: 'high',
+      icon
+    })
+
+    // Send push notification with high priority
+    const pushData = {
+      type,
+      reservationId: reservationId?.toString(),
+      screen: 'ReservationDetails',
+      urgent: true
+    }
+
+    const tokens = await this.getActiveTokens(userId)
+    const result = await this.sendPushNotification(tokens, title, body, pushData)
+
+    return result
   }
 }
 
