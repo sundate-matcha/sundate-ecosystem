@@ -89,13 +89,13 @@ export const generateNotificationBody = (action, reservation, changes = {}) => {
 }
 
 /**
- * Generate notification data payload
+ * Generate push notification data payload (for mobile push notifications only)
  * @param {String} action - Action type
  * @param {Object} reservation - Reservation object
  * @param {Object} additionalData - Additional data to include
- * @returns {Object} Notification data payload
+ * @returns {Object} Push notification data payload
  */
-export const generateNotificationData = (action, reservation, additionalData = {}) => {
+export const generatePushNotificationData = (action, reservation, additionalData = {}) => {
   return {
     type: `reservation_${action}`,
     reservationId: reservation._id.toString(),
@@ -206,7 +206,7 @@ export const createBatchNotificationSummary = (reservations, action) => {
   return {
     title,
     body,
-    data: {
+    pushData: {
       type: 'batch_notification',
       action,
       count,
@@ -260,7 +260,7 @@ export default {
   formatNotificationTime,
   generateNotificationTitle,
   generateNotificationBody,
-  generateNotificationData,
+  generatePushNotificationData,
   formatReservationForNotification,
   shouldSendNotification,
   getNotificationSound,

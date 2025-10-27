@@ -16,6 +16,7 @@ import tableCategoryRoutes from './routes/table-categories.js'
 import pushTokenRoutes from './routes/pushTokens.js'
 import logRoutes from './routes/logs.js'
 import notificationRoutes from './routes/notifications.js'
+import eventRoutes from './routes/events.js'
 
 // Load environment variables
 dotenv.config()
@@ -81,6 +82,7 @@ const connectRedis = async () => {
 // Routes
 app.use(`${BASE_URL}/auth`, authRoutes)
 app.use(`${BASE_URL}/contact`, contactRoutes)
+app.use(`${BASE_URL}/events`, eventRoutes)
 app.use(`${BASE_URL}/logs`, logRoutes)
 app.use(`${BASE_URL}/notifications`, notificationRoutes)
 app.use(`${BASE_URL}/push-tokens`, pushTokenRoutes)

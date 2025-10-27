@@ -4,6 +4,7 @@ import Reservation from '../models/Reservation.js'
 import TableCategory from '../models/TableCategory.js'
 import notificationService from '../services/notificationService.js'
 import logService from '../services/logService.js'
+import sseService from '../services/sseService.js'
 import { cacheMiddleware, invalidateCacheMiddleware } from '../middleware/cache.js'
 import { invalidateResourceCache } from '../utils/cacheHelpers.js'
 
@@ -168,6 +169,11 @@ router.post('/', invalidateReservationCache, validateReservation, async (req, re
       .sendReservationCreatedNotification(reservation, log._id)
       .catch(error => console.error('Error sending notification:', error))
 
+    // Broadcast SSE event (async, non-blocking)
+    sseService
+      .broadcastReservationCreated(reservation)
+      .catch(error => console.error('Error broadcasting SSE event:', error))
+
     // Invalidate cache
     await invalidateResourceCache('reservations')
 
@@ -272,6 +278,13 @@ router.put('/:id', invalidateReservationCache, validateReservation, async (req, 
         .catch(error => console.error('Error sending notification:', error))
     }
 
+    // Broadcast SSE event if there are changes (async, non-blocking)
+    if (Object.keys(changes).length > 0) {
+      sseService
+        .broadcastReservationUpdated(reservation, changes)
+        .catch(error => console.error('Error broadcasting SSE event:', error))
+    }
+
     // Invalidate cache
     await invalidateResourceCache('reservations')
 
@@ -309,6 +322,11 @@ router.patch('/:id/confirm', invalidateReservationCache, async (req, res) => {
     notificationService
       .sendReservationConfirmedNotification(reservation, log._id)
       .catch(error => console.error('Error sending notification:', error))
+
+    // Broadcast SSE event (async, non-blocking)
+    sseService
+      .broadcastReservationConfirmed(reservation)
+      .catch(error => console.error('Error broadcasting SSE event:', error))
 
     // Invalidate cache
     await invalidateResourceCache('reservations')
@@ -349,6 +367,11 @@ router.patch('/:id/cancel', invalidateReservationCache, async (req, res) => {
       .sendReservationCancelledNotification(reservation, log._id)
       .catch(error => console.error('Error sending notification:', error))
 
+    // Broadcast SSE event (async, non-blocking)
+    sseService
+      .broadcastReservationCancelled(reservation)
+      .catch(error => console.error('Error broadcasting SSE event:', error))
+
     // Invalidate cache
     await invalidateResourceCache('reservations')
 
@@ -373,7 +396,18 @@ router.delete('/:id', invalidateReservationCache, async (req, res) => {
     const metadata = logService.extractMetadata(req)
     await logService.logReservationDeleted(reservation, metadata)
 
+    // Store reservation data for SSE broadcast before deletion
+    const reservationData = {
+      id: reservation._id,
+      name: reservation.name
+    }
+
     await Reservation.findByIdAndDelete(req.params.id)
+
+    // Broadcast SSE event (async, non-blocking)
+    sseService
+      .broadcastReservationDeleted(reservationData.id, reservationData.name)
+      .catch(error => console.error('Error broadcasting SSE event:', error))
 
     // Invalidate cache
     await invalidateResourceCache('reservations')
