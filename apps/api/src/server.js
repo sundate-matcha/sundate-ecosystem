@@ -17,6 +17,7 @@ import pushTokenRoutes from './routes/pushTokens.js'
 import logRoutes from './routes/logs.js'
 import notificationRoutes from './routes/notifications.js'
 import eventRoutes from './routes/events.js'
+import { getActiveConnectionsCount } from './routes/events.js'
 
 // Load environment variables
 dotenv.config()
@@ -93,6 +94,7 @@ app.use(`${BASE_URL}/table-categories`, tableCategoryRoutes)
 app.get(`${BASE_URL}/health`, async (req, res) => {
   const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   const redisStatus = await isRedisAvailable() ? 'connected' : 'disconnected'
+  const activeSSEConnections = getActiveConnectionsCount()
   
   res.json({
     status: 'OK',
@@ -100,7 +102,11 @@ app.get(`${BASE_URL}/health`, async (req, res) => {
     timestamp: new Date().toISOString(),
     services: {
       mongodb: mongoStatus,
-      redis: redisStatus
+      redis: redisStatus,
+      sse: {
+        status: 'available',
+        activeConnections: activeSSEConnections
+      }
     }
   })
 })
