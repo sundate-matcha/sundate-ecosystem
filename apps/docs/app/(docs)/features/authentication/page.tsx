@@ -101,6 +101,33 @@ const verifyTokenResponse = `{
   }
 }`
 
+// Get Users Test (No Auth)
+const getUsersTestQueryParams = [
+  { name: 'page', type: 'number', required: false, description: 'Page number (default: 1)' },
+  { name: 'limit', type: 'number', required: false, description: 'Items per page (default: 20)' },
+  { name: 'role', type: 'string', required: false, description: 'Filter by role (user, staff, admin)' },
+  { name: 'isActive', type: 'boolean', required: false, description: 'Filter by active status' },
+  { name: 'search', type: 'string', required: false, description: 'Search by username, email, or name' }
+]
+
+const getUsersTestResponse = `{
+  "users": [
+    {
+      "id": "...",
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "user",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "totalPages": 1,
+  "currentPage": 1,
+  "total": 1
+}`
+
 export default function AuthenticationPage() {
   return (
     <div className="space-y-8">
@@ -174,6 +201,25 @@ export default function AuthenticationPage() {
           parameters={[]}
           responseExample={verifyTokenResponse}
         />
+      </div>
+
+      <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 p-6 rounded-xl">
+        <h2 className="text-xl font-semibold text-red-800 dark:text-red-200 mb-4">⚠️ Testing Endpoint (No Authentication)</h2>
+        <p className="text-red-700 dark:text-red-300 mb-4">
+          The following endpoint is for <strong>TESTING ONLY</strong> and should be disabled in production environments.
+          It does not require authentication and exposes user data.
+        </p>
+        
+        <div className="space-y-6">
+          <EndpointCard
+            method="GET"
+            path="/api/auth/users-test"
+            title="Get Users (Test - No Auth)"
+            description="Get list of all users WITHOUT authentication. FOR TESTING ONLY - DISABLE IN PRODUCTION!"
+            parameters={getUsersTestQueryParams}
+            responseExample={getUsersTestResponse}
+          />
+        </div>
       </div>
 
       <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700">
